@@ -167,7 +167,9 @@ fig, ax = plt.subplots(figsize=(18, 6))
 # ordine RM (periodo crescente)
 task_names = [t[0] for t in tasks]
 period_of = {name: T for name, _, T in tasks}
-task_names = sorted(task_names, key=lambda n: period_of[n])
+# Tie-breaker nel plot: inverti Temperatura e Batteria a parità di periodo
+_plot_tie_break = {"ReadTemperature": 0, "ReadBattery": 1}
+task_names = sorted(task_names, key=lambda n: (period_of[n], _plot_tie_break.get(n, 0)))
 
 # layout
 lane = 1.35
@@ -182,11 +184,15 @@ Y_TOP_HEADROOM = 0.60 * lane
 y_min_plot = -Y_BOTTOM_MARGIN
 y_max_plot = max(y_line.values()) + bar_h + Y_TOP_HEADROOM
 
-# palette coerente: Supervisor come Board2/Comm (tab:red). ReadTemperature NON rossa.
-COLOR_READ_BATTERY = "tab:blue"
-COLOR_READ_TEMPERATURE = "tab:green"
-COLOR_PID = "tab:purple"
+# Palette richiesta:
+# - PID: arancione
+# - Supervisor: rosso
+# - ReadTemperature: viola
+# - ReadBattery: blu notte
+COLOR_PID = "tab:orange"
 COLOR_SUPERVISOR = "tab:red"
+COLOR_READ_TEMPERATURE = "tab:purple"
+COLOR_READ_BATTERY = "royalblue"
 
 task_color_map = {
     "PID": COLOR_PID,

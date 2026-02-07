@@ -474,23 +474,20 @@ def plot_window(start_us: int, end_us: int):
     # PALETTE COLORI COERENTE (catena funzionale)
     # ============================================================
 
-    # Colori principali (task periodici)
-    COLOR_CONTROLLER = "tab:blue"
-    COLOR_GYRO       = "tab:green"
-    COLOR_SONAR      = "tab:purple"
-    COLOR_COMM       = "tab:red"
-    COLOR_PS_FALLBACK = "tab:gray"
+    # Palette colori richiesta (Board2 + PS)
+    # - Polling Server: verde chiaro
+    # - Controller: giallo
+    # - Giroscopio: arancione chiaro
+    # - Supervisor: arancione scuro
+    # - Sonar: rosso chiaro
+    COLOR_PS_FALLBACK = "lightgreen"
+    COLOR_CONTROLLER = "gold"
+    COLOR_GYRO       = "#FFB74D"
+    COLOR_COMM       = "darkorange"
+    COLOR_SONAR      = "#E57373"
 
-    # Colori sonar distinti (aperiodici)
-    COLOR_SONAR_LEFT  = "#00C853"   # verde acceso (emerald)
-    COLOR_SONAR_FRONT = "#FF6D00"   # arancione acceso
-    COLOR_SONAR_RIGHT = "#D500F9"   # magenta acceso
-
-    COLOR_SONAR_LEFT  = "#00FF00"   # verde puro
-    COLOR_SONAR_FRONT = "#FF0000"   # rosso puro
-    COLOR_SONAR_RIGHT = "#0000FF"   # blu puro
-
-    COLOR_SONAR_LEFT  = "#E69F00"   # orange
+    # Sonar triplo (aperiodici): colori invariati
+    COLOR_SONAR_LEFT  = "#009E73"   # bluish green (ben distinto)
     COLOR_SONAR_FRONT = "#56B4E9"   # sky blue
     COLOR_SONAR_RIGHT = "#CC79A7"   # reddish purple
 
@@ -501,7 +498,7 @@ def plot_window(start_us: int, end_us: int):
         "ReadGyroscope":  COLOR_GYRO,
         "ReadSonar":      COLOR_SONAR,
         "Supervisor":     COLOR_COMM,
-        "PS":         COLOR_PS_FALLBACK,  # usato solo se serve fallback
+        "PS":             COLOR_PS_FALLBACK,  # fallback / legenda
     }
 
     # --- callback / PS (stesso colore della sorgente logica) ---

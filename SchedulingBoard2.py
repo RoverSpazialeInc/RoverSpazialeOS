@@ -187,11 +187,15 @@ Y_TOP_HEADROOM = 0.60 * lane
 y_min_plot = -Y_BOTTOM_MARGIN
 y_max_plot = max(y_line.values()) + bar_h + Y_TOP_HEADROOM
 
-# palette colori coerente con SchedulingBoard2PS.py
-COLOR_CONTROLLER = "tab:blue"
-COLOR_GYRO = "tab:green"
-COLOR_SONAR = "tab:purple"
-COLOR_COMM = "tab:red"
+# Palette colori richiesta (Board2)
+# - Controller: giallo
+# - Giroscopio: arancione chiaro
+# - Supervisor: arancione scuro
+# - Sonar: rosso chiaro
+COLOR_CONTROLLER = "gold"
+COLOR_GYRO = "#FFB74D"
+COLOR_COMM = "darkorange"
+COLOR_SONAR = "#E57373"
 
 task_color_map = {
     "ReadController": COLOR_CONTROLLER,
