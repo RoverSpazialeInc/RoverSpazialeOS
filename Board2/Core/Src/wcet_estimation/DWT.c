@@ -75,3 +75,38 @@ void DWT_PrintCyclesAndUs(const char *tag, uint32_t cycles)
     printMsg(" us)");
     printNewLine();
 }
+
+void DWT_DelayUs(uint32_t us)
+{
+    if (us == 0u) {
+        return;
+    }
+
+    const uint32_t f_cpu = HAL_RCC_GetHCLKFreq();
+    const uint32_t cycles_per_us = f_cpu / 1000000u;
+
+    /* Se f_cpu < 1MHz, non ha senso fare delay preciso in us */
+    if (cycles_per_us == 0u) {
+        return;
+    }
+
+    /* Chunking per evitare overflow nei cicli */
+    const uint32_t max_cycles = 0x7FFFFFFFu;
+    const uint32_t max_us_chunk = max_cycles / cycles_per_us;
+
+    while (us > 0u) {
+        uint32_t chunk_us = us;
+        if (chunk_us > max_us_chunk) {
+            chunk_us = max_us_chunk;
+        }
+
+        const uint32_t start = DWT->CYCCNT;
+        const uint32_t target_cycles = chunk_us * cycles_per_us;
+
+        while ((uint32_t)(DWT->CYCCNT - start) < target_cycles) {
+            __NOP();
+        }
+
+        us -= chunk_us;
+    }
+}

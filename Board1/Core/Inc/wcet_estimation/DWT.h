@@ -101,6 +101,13 @@ uint32_t DWT_CyclesToUs_u32(uint32_t cycles);
  */
 void DWT_PrintCyclesAndUs(const char *tag, uint32_t cycles);
 
+/**
+ * @brief Busy-wait delay in microseconds.
+ *
+ * Requires DWT_Init() to have been called at startup.
+ */
+void DWT_DelayUs(uint32_t us);
+
 /*
  * ---------------------------------------------------------------------------
  * Usage Example

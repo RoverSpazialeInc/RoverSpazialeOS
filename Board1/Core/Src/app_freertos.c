@@ -248,7 +248,7 @@ void MX_FREERTOS_Init(void) {
   toggleRightRedLedHandle = osTimerNew(callbackToggleRightRedLed, osTimerPeriodic, NULL, &toggleRightRedLed_attributes);
 
   /* USER CODE BEGIN RTOS_TIMERS */
-	timer_set_period(&timerSupervisor, WCET_SUPERVISOR);
+	timer_set_period(&timerSupervisor, WCET_SUPERVISOR_MS);
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -338,7 +338,7 @@ void StartPID(void *argument)
 #else
 		Board1_U.speed = (BUS_Speed ) { current_speed[0], current_speed[1],
 						current_speed[2], current_speed[3] };
-        HAL_Delay(WCET_PID);
+		DWT_DelayUs(WCET_PID);
 #endif
 
 		periodic_wait(&next, T, &MissPID);
@@ -416,12 +416,12 @@ void StartSupervisor(void *argument)
 		//printNewLine();
 
 		//printMotorSpeeds(&Board1_U.speed);
-
-		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
-			cycle_count = 0;
-			printGlobalState(&Board1_Y.board1GlobalState);
-			printDecision(&Board1_Y.board1Decision);
-		}
+//
+//		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
+//			cycle_count = 0;
+//			printGlobalState(&Board1_Y.board1GlobalState);
+//			printDecision(&Board1_Y.board1Decision);
+//		}
 
 
 		/* END PRINT SECTION */
@@ -480,7 +480,7 @@ void StartReadTemperature(void *argument)
 
 #else
         Board1_U.temperature = 32.3f;
-        HAL_Delay(WCET_TEMPERATURE);
+		DWT_DelayUs(WCET_TEMPERATURE);
 #endif
 
 		periodic_wait(&next, T, &MissReadTemperature);
@@ -530,7 +530,7 @@ void StartReadBattery(void *argument)
 
 #else
         Board1_U.batteryLevel = 32;
-        HAL_Delay(WCET_BATTERY);
+		DWT_DelayUs(WCET_BATTERY);
 #endif
 
 

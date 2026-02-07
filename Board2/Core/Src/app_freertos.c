@@ -271,7 +271,7 @@ void MX_FREERTOS_Init(void) {
   SonarMonitoringHandle = osTimerNew(SonarTimeout, osTimerOnce, NULL, &SonarMonitoring_attributes);
 
   /* USER CODE BEGIN RTOS_TIMERS */
-	timer_set_period(&timerSupervisor, WCET_SUPERVISOR);
+	timer_set_period(&timerSupervisor, WCET_SUPERVISOR_MS);
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -367,7 +367,7 @@ void StartReadController(void *argument)
 		}
 
 #else
-		HAL_Delay(WCET_CONTROLLER);
+		DWT_DelayUs(WCET_CONTROLLER);
 #endif
 
 		/* Wait until next period and track deadline miss if any */
@@ -428,7 +428,7 @@ void StartReadGyroscope(void *argument)
 		}
 
 #else
-		HAL_Delay(WCET_GYROSCOPE);
+		DWT_DelayUs(WCET_GYROSCOPE);
 #endif
 
 		/* Wait until next period and track deadline miss if any */
@@ -488,21 +488,21 @@ void StartSupervisor(void *argument)
 
 
 		/* BEGIN PRINT SECTION */
-/*
-		static uint32_t cycle_count = 0;
-		cycle_count++;
 
+//		static uint32_t cycle_count = 0;
+//		cycle_count++;
+//
+//
+//		printMsg("Cycle Count B2: ");
+//		printInt((int32_t)cycle_count);
+//		printNewLine();
+//
+//		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
+//			printGlobalState(&Board2_Y.board1GlobalState);
+//			printDecision(&Board2_Y.board1Decision);
+//			cycle_count = 0;
+//		}
 
-		printMsg("Cycle Count B2: ");
-		printInt((int32_t)cycle_count);
-		printNewLine();
-
-		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
-			printGlobalState(&Board2_Y.board1GlobalState);
-			printDecision(&Board2_Y.board1Decision);
-			cycle_count = 0;
-		}
-*/
 		/* END PRINT SECTION */
 
 		if(Board2_Y.board1Decision.roverState == EMERGENCY ||
@@ -552,7 +552,7 @@ void StartReadSonars(void *argument)
 #endif
 
 #else
-		HAL_Delay(WCET_SONAR);
+		DWT_DelayUs(WCET_SONAR);
 #endif
 
 		/* Wait until next period and track deadline miss if any */
@@ -730,8 +730,7 @@ void StartPollingServer(void *argument)
         Board2_U.remoteController = (BUS_RemoteController){ 0, 0, 0 };
         Board2_U.gyroscope = 32;
         Board2_U.sonar = (BUS_Sonar){ 380, 400, 380 };
-
-        HAL_Delay(WCET_POLLING_SERVER);
+		DWT_DelayUs(WCET_POLLING_SERVER);
 #endif
 
 #endif
