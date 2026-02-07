@@ -79,7 +79,13 @@ validate_timebase_configuration()
 # -------------------------
 # Rate Monotonic ordering (priorità: periodo più piccolo)
 # -------------------------
-tasks = sorted(tasks, key=lambda x: x[2])
+_rm_tie_break = {
+    # A parità di periodo, schedula prima Temperatura e poi Batteria
+    "ReadTemperature": 0,
+    "ReadBattery": 1,
+}
+
+tasks = sorted(tasks, key=lambda x: (x[2], _rm_tie_break.get(x[0], 0)))
 task_names = [t[0] for t in tasks]
 
 # -------------------------
@@ -138,7 +144,10 @@ while time < H_tick:
     ready = [j for j in jobs if j["remaining"] > 0]
 
     if ready:
-        current = min(ready, key=lambda j: j["period"])
+        current = min(
+            ready,
+            key=lambda j: (j["period"], _rm_tie_break.get(j["name"], 0), j["release"], j["id"]),
+        )
         current["remaining"] -= 1
         schedule.append((time, current["name"]))
 
@@ -168,8 +177,7 @@ fig, ax = plt.subplots(figsize=(18, 6))
 task_names = [t[0] for t in tasks]
 period_of = {name: T for name, _, T in tasks}
 # Tie-breaker nel plot: inverti Temperatura e Batteria a parità di periodo
-_plot_tie_break = {"ReadTemperature": 0, "ReadBattery": 1}
-task_names = sorted(task_names, key=lambda n: (period_of[n], _plot_tie_break.get(n, 0)))
+task_names = sorted(task_names, key=lambda n: (period_of[n], _rm_tie_break.get(n, 0)))
 
 # layout
 lane = 1.35
