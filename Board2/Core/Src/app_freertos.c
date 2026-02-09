@@ -669,7 +669,8 @@ void StartPollingServer(void *argument)
             
             /* ---------------- REMOTE CONTROLLER ---------------- */
             if (flags & FLAG_PAD_OK) {
-                PadReceiver_Read(&task_remoteController);
+            	// Casting for volatile qualifier
+                PadReceiver_Read((BUS_RemoteController*) &task_remoteController);
                 pad_receiver_read_failed = 0;
                 // Clear both to prioritize OK and prevent double handling
                 osEventFlagsClear(flagsOSHandle, FLAG_PAD_OK | FLAG_PAD_ERROR);
