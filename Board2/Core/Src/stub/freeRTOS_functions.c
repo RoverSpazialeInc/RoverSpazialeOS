@@ -92,24 +92,21 @@ static inline void killPeripherals(void)
     resetOutputs();
 }
 
-#include "Board2.h"
+extern osEventFlagsId_t flagsOSHandle;
+#include "event_flags_constant.h"
 
 void enterDegraded(){
-    Board2_Y.supervision_ended = 1;
-    killTasks();
-    killPeripherals();
+	osEventFlagsSet(flagsOSHandle, FLAG_DEGRADED);
     (void)osThreadTerminate(osThreadGetId());
 }
 
 
 void enterEmergency(){
-	Board2_Y.supervision_ended = 1;
     killTasks();
     killPeripherals();
 }
 
 void enterFaulty(){
-	Board2_Y.supervision_ended = 1;
     killTasks();
     killPeripherals();
 }

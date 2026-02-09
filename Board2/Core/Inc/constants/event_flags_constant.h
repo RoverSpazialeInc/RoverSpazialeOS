@@ -29,6 +29,9 @@
 #define FLAG_SONAR_RIGHT_OK         (1U << 11) 	// 2^11 = 2048
 #define FLAG_SONAR_RIGHT_TIMEOUT    (1U << 12) // 2^12 = 4096
 
+/* Degraded mode */
+#define FLAG_DEGRADED               (1U << 13) // 2^13 = 8192
+
 /* Mask for all events the Polling Server waits for (everything except START and SYNC) */
 #define FLAGS_POLLING_SERVER_WAIT   (FLAG_PAD_OK | FLAG_PAD_ERROR | \
                                      FLAG_GYRO_OK | FLAG_GYRO_ERROR | \

@@ -104,10 +104,8 @@ static inline void killPeripherals(void)
     resetOutputs();
 }
 
-#include "Board1.h"
 
 void enterDegraded(){
-    Board1_Y.supervision_ended = 1;
     killTasks();
     killPeripherals();
     (void)osThreadTerminate(osThreadGetId());
@@ -115,14 +113,12 @@ void enterDegraded(){
 
 
 void enterEmergency(){
-	Board1_Y.supervision_ended = 1;
     killTasks();
     killPeripherals();
     (void)osThreadTerminate(osThreadGetId());
 }
 
 void enterFaulty(){
-	Board1_Y.supervision_ended = 1;
     killTasks();
     killPeripherals();
     (void)osThreadTerminate(osThreadGetId());

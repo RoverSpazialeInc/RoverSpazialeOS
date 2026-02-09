@@ -31,8 +31,9 @@
 /* UART Handler for communication inter board */
 #include "uart_functions.h"
 
-/* Simulink Model */
+/* Simulink Models */
 #include "Board2.h"
+#include "Board2Degraded.h"
 
 /* Drivers */
 #include "pad_receiver.h"
@@ -157,13 +158,21 @@ int main(void)
 	PRINT_DBG("BEGIN B2 INIT...\r\n");
 
 
-	/* Init Simulink Model with default values */
+	/* Init Simulink Models with default values */
 	Board2_initialize();
 	Board2_U.remoteController = (BUS_RemoteController ) { 0, 0, 0 };
 	Board2_U.gyroscope = 0;
 	Board2_U.sonar = (BUS_Sonar ) { 0, 0, 0 };
 	Board2_U.areSensorsValid = 0;
 	Board2_U.timeoutOccurred = 0;
+	Board2Degraded_U.deadlineOccurred = 0;
+
+	Board2Degraded_initialize();
+	Board2Degraded_U.remoteController = (BUS_RemoteController ) { 0, 0, 0 };
+	Board2Degraded_U.gyroscope = 0;
+	Board2Degraded_U.sonar = (BUS_Sonar ) { 0, 0, 0 };
+	Board2Degraded_U.areSensorsValid = 0;
+	Board2Degraded_U.deadlineOccurred = 0;
 
 	/* Init drivers */
 	if (Sonar_InitAll() == 1) {

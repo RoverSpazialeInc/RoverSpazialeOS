@@ -32,8 +32,10 @@
 #include "sync_start.h"
 #include "freeRTOS_functions.h"
 
-/* Simulink Model */
+/* Simulink Models */
 #include "Board2.h"
+#include "Board2Degraded.h"
+
 
 /* Drivers */
 #include "pad_receiver.h"
@@ -105,6 +107,9 @@ const BUS_RemoteController default_controller = { 0, 0, 0 };
 volatile BUS_RemoteController task_remoteController = { 0, 0, 0 };
 volatile Gyroscope task_gyroscope = 0;
 volatile BUS_Sonar task_sonar = { 0, 0, 0 };
+
+/* NEXT RELEASE FOR SUPERVISOR (used by both Supervisor and SupervisorDeg) */
+uint32_t next_supervisor;
 
 /* Timer Handler from main.c */
 extern timer_t timerSupervisor;
@@ -237,7 +242,7 @@ static inline void error_gyroscope(void);
 static inline void error_sonar(void);
 
 /* PRODUCTION FUNCTIONS */
-static inline void manage_fake_sonar_toggle(void);
+static inline void manage_fake_sonar_toggle(BUS_RemoteController *rc, BUS_Sonar *sonar);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -460,9 +465,19 @@ void StartSupervisor(void *argument)
 	Sync_WaitStart();
 
 	const uint32_t T = ms_to_ticks(T_SUPERVISOR);
-	uint32_t next = start_tick;
 
-	periodic_wait(&next, T, &MissSupervisor);  // Skip first communication
+	/*
+	 * next for Supervisor is a global variabile because it's also used by the SupervisorDeg task,
+	 * which shares the same code but is activated in degraded mode after a specific event flag
+	 * is set
+	 */
+	uint32_t next_supervisor = start_tick;
+
+#if ENTER_DEGRADED_MODE
+	enterDegraded();
+#endif
+
+	periodic_wait(&next_supervisor, T, &MissSupervisor);  // Skip first communication
 
 	/* Infinite loop */
 	for (;;) {
@@ -485,7 +500,7 @@ void StartSupervisor(void *argument)
 		Board2_U.gyroscope = task_gyroscope;
 		Board2_U.sonar = task_sonar;
 
-		manage_fake_sonar_toggle();
+		manage_fake_sonar_toggle(&Board2_U.remoteController, &Board2_U.sonar);
 
 
 		/* START TIMER FOR MONITORING WCET */
@@ -501,27 +516,23 @@ void StartSupervisor(void *argument)
 
 		/* BEGIN PRINT SECTION */
 
-//		static uint32_t cycle_count = 0;
-//		cycle_count++;
-//
-//
+		static uint32_t cycle_count = 0;
+		cycle_count++;
+
+
 //		printMsg("Cycle Count B2: ");
 //		printInt((int32_t)cycle_count);
 //		printNewLine();
-//
+
 //		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
-//			printGlobalState(&Board2_Y.board1GlobalState);
-//			printDecision(&Board2_Y.board1Decision);
+//			printGlobalState(&Board2_Y.board2GlobalState);
+//			printDecision(&Board2_Y.board2Decision);
 //			cycle_count = 0;
 //		}
 
 		/* END PRINT SECTION */
 
-		if(Board2_Y.board2Decision.roverState == EMERGENCY ||
-				Board2_Y.board2Decision.roverState == FAULTY_B1_DEGRADED_B2){
-			break;
-		}
-		periodic_wait(&next, T, &MissSupervisor);
+		periodic_wait(&next_supervisor, T, &MissSupervisor);
 	}
 #endif
 
@@ -767,13 +778,69 @@ void StartPollingServer(void *argument)
 void StartSupervisorDeg(void *argument)
 {
   /* USER CODE BEGIN StartSupervisorDeg */
-  /* Infinite loop */
-  for(;;)
-  {
-    break;
-  }
 
-  osThreadTerminate(osThreadGetId());
+	osEventFlagsWait(flagsOSHandle, FLAG_DEGRADED, osFlagsWaitAny, osWaitForever);
+
+	const uint32_t T = ms_to_ticks(T_SUPERVISOR);
+
+	/* Sleep until next release after supervisor unlock */
+	periodic_wait(&next_supervisor, T, &MissSupervisor);
+
+	printMsg("Entering Degraded Mode...\r\n");
+	/* Infinite loop */
+	for (;;) {
+
+		/* Convert singular errors into global flags for the Simulink model */
+		uint8_t temp = 0;
+		temp |= (pad_receiver_read_failed & 0x01) << 0;
+		temp |= (gyroscope_read_failed     & 0x01) << 1;
+		temp |= (sonar_read_failed        & 0x01) << 2;
+		//Board2_U.areSensorsValid = temp;
+
+		/* Clear previous error flags */
+		pad_receiver_read_failed = 0;
+		gyroscope_read_failed = 0;
+		sonar_read_failed = 0;
+
+
+		/* Copy task variables into Simulink model inputs */
+		Board2Degraded_U.remoteController = task_remoteController;
+		Board2Degraded_U.gyroscope = task_gyroscope;
+		Board2Degraded_U.sonar = task_sonar;
+
+		manage_fake_sonar_toggle(&Board2Degraded_U.remoteController, &Board2Degraded_U.sonar);
+
+
+
+		do {
+			Board2Degraded_step();
+		} while (Board2Degraded_Y.supervision_ended != 1);
+
+
+
+		/* BEGIN PRINT SECTION */
+
+		static uint32_t cycle_count = 0;
+		cycle_count++;
+
+//
+//		printMsg("Cycle Count B2: ");
+//		printInt((int32_t)cycle_count);
+//		printNewLine();
+//
+		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
+			printLocalStateB2(&Board2Degraded_B.board2LocalState);
+			printSetPoint(&Board2Degraded_B.setPoint);
+			cycle_count = 0;
+		}
+
+		/* END PRINT SECTION */
+
+		periodic_wait(&next_supervisor, T, &MissSupervisor);
+	}
+
+	osThreadTerminate(osThreadGetId());
+
   /* USER CODE END StartSupervisorDeg */
 }
 
@@ -837,17 +904,19 @@ static inline void error_sonar(void){
 	sonar_read_failed = 1;
 }
 
-static inline void manage_fake_sonar_toggle(void) {
+static inline void manage_fake_sonar_toggle(BUS_RemoteController *rc, BUS_Sonar *sonar) {
 	/* FAKE SONAR */
 	#include "controller_masks.h"
+
+	static uint16_t previousButtons = 0;
 
 	// 0 = enabled, 1 = disabled
 	static uint8_t disable_left = 0;
 	static uint8_t disable_front = 0;
 	static uint8_t disable_right = 0;
 
-	uint32_t current = Board2_U.remoteController.buttons;
-	uint32_t risingEdges = (~Board2_DW.previousButtons) & current;
+	uint32_t current = rc->buttons;
+	uint32_t risingEdges = (~previousButtons) & current;
 
 	/* Toggle su fronte di salita */
 	if (risingEdges & DISABLE_LEFT_SONAR)
@@ -861,13 +930,15 @@ static inline void manage_fake_sonar_toggle(void) {
 
 	/* Applica disabilitazione */
 	if (disable_left)
-		Board2_U.sonar.left = 380;
+		sonar->left = 380;
 
 	if (disable_front)
-		Board2_U.sonar.front = 380;
+		sonar->front = 380;
 
 	if (disable_right)
-		Board2_U.sonar.right = 380;
+		sonar->right = 380;
+
+	previousButtons = current;
 
 	/* END FAKE SONAR */
 }
