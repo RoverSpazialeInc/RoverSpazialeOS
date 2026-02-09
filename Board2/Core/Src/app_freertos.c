@@ -236,6 +236,9 @@ static uint32_t ms_to_ticks(uint32_t ms);
 static void periodic_wait(uint32_t *next_release, uint32_t period_ticks,
 		volatile uint32_t *miss_counter);
 
+/* DECISION FUNCTIONS */
+static inline void change_set_point(void);
+
 /* ERROR DRIVER FUNCTIONS */
 static inline void error_pad_receiver(void);
 static inline void error_gyroscope(void);
@@ -836,6 +839,11 @@ void StartSupervisorDeg(void *argument)
 
 		/* END PRINT SECTION */
 
+		change_set_point();
+		for (int i = 0; i < N_MOTORS; i++){
+			MotorControl_OpenLoopActuate(&motors[i]);
+		}
+
 		periodic_wait(&next_supervisor, T, &MissSupervisor);
 	}
 
@@ -887,6 +895,19 @@ static void periodic_wait(uint32_t *next_release, uint32_t period_ticks,
 
 	/* Sleep assoluta fino al prossimo periodo */
 	osDelayUntil(*next_release);
+}
+
+/* DECISION FUNCTIONS */
+
+static inline void change_set_point(void) {
+	const float left = Board2Degraded_B.setPoint.leftAxis;
+	const float right = Board2Degraded_B.setPoint.rightAxis;
+
+	MotorControl_SetReferenceRPM(&motors[MOTOR_FRONT_LEFT], left);
+	MotorControl_SetReferenceRPM(&motors[MOTOR_REAR_LEFT], left);
+
+	MotorControl_SetReferenceRPM(&motors[MOTOR_FRONT_RIGHT], right);
+	MotorControl_SetReferenceRPM(&motors[MOTOR_REAR_RIGHT], right);
 }
 
 

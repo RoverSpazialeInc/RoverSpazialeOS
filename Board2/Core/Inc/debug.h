@@ -72,7 +72,7 @@
  * 1: System enters degraded mode on start
  * 0: System does not enter degraded mode on start
  */
-#define ENTER_DEGRADED_MODE 1
+#define ENTER_DEGRADED_MODE 0
 
 /**
  * @brief Enable ReadSonars Task
