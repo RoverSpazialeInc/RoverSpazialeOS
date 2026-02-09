@@ -101,6 +101,11 @@ uint8_t sonar_read_failed = 0;
 /* DEFAULT VALUES */
 const BUS_RemoteController default_controller = { 0, 0, 0 };
 
+/* TASK OUTPUT VARIABLES (written by tasks, read by Supervisor) */
+volatile BUS_RemoteController task_remoteController = { 0, 0, 0 };
+volatile Gyroscope task_gyroscope = 0;
+volatile BUS_Sonar task_sonar = { 0, 0, 0 };
+
 /* Timer Handler from main.c */
 extern timer_t timerSupervisor;
 
@@ -476,6 +481,11 @@ void StartSupervisor(void *argument)
 
 		manage_fake_sonar_toggle();
 
+		/* Copy task variables into Simulink model inputs */
+		Board2_U.remoteController = task_remoteController;
+		Board2_U.gyroscope = task_gyroscope;
+		Board2_U.sonar = task_sonar;
+
 		/* START TIMER FOR MONITORING WCET */
 		//timer_start(&timerSupervisor);
 
@@ -505,8 +515,8 @@ void StartSupervisor(void *argument)
 
 		/* END PRINT SECTION */
 
-		if(Board2_Y.board1Decision.roverState == EMERGENCY ||
-				Board2_Y.board1Decision.roverState == FAULTY_B1_DEGRADED_B2){
+		if(Board2_Y.board2Decision.roverState == EMERGENCY ||
+				Board2_Y.board2Decision.roverState == FAULTY_B1_DEGRADED_B2){
 			break;
 		}
 		periodic_wait(&next, T, &MissSupervisor);
@@ -659,7 +669,7 @@ void StartPollingServer(void *argument)
             
             /* ---------------- REMOTE CONTROLLER ---------------- */
             if (flags & FLAG_PAD_OK) {
-                PadReceiver_Read(&Board2_U.remoteController);
+                PadReceiver_Read(&task_remoteController);
                 pad_receiver_read_failed = 0;
                 // Clear both to prioritize OK and prevent double handling
                 osEventFlagsClear(flagsOSHandle, FLAG_PAD_OK | FLAG_PAD_ERROR);
@@ -672,7 +682,7 @@ void StartPollingServer(void *argument)
             /* ------------------- GYROSCOPE ------------------- */
             if (flags & FLAG_GYRO_OK) {
                 MPU6050_Process_Yaw_IT_Data();
-                Board2_U.gyroscope = MPU6050_Yaw.KalmanAngleZ;
+                task_gyroscope = MPU6050_Yaw.KalmanAngleZ;
                 gyroscope_read_failed = 0;
                 osEventFlagsClear(flagsOSHandle, FLAG_GYRO_OK | FLAG_GYRO_ERROR);
             }
@@ -684,7 +694,7 @@ void StartPollingServer(void *argument)
             /* ------------------ SONAR LEFT ------------------- */
             if (flags & FLAG_SONAR_LEFT_OK) {
                 hcsr04_process_distance(&sonarLeft);
-                Board2_U.sonar.left = sonarLeft.distance;
+                task_sonar.left = sonarLeft.distance;
                 osEventFlagsClear(flagsOSHandle, FLAG_SONAR_LEFT_OK | FLAG_SONAR_LEFT_TIMEOUT);
             }
             else if (flags & FLAG_SONAR_LEFT_TIMEOUT) {
@@ -695,7 +705,7 @@ void StartPollingServer(void *argument)
             /* ------------------ SONAR FRONT ------------------ */
             if (flags & FLAG_SONAR_FRONT_OK) {
                 hcsr04_process_distance(&sonarFront);
-                Board2_U.sonar.front = sonarFront.distance;
+                task_sonar.front = sonarFront.distance;
                 osEventFlagsClear(flagsOSHandle, FLAG_SONAR_FRONT_OK | FLAG_SONAR_FRONT_TIMEOUT);
             }
             else if (flags & FLAG_SONAR_FRONT_TIMEOUT) {
@@ -706,7 +716,7 @@ void StartPollingServer(void *argument)
             /* ------------------ SONAR RIGHT ------------------ */
             if (flags & FLAG_SONAR_RIGHT_OK) {
                 hcsr04_process_distance(&sonarRight);
-                Board2_U.sonar.right = sonarRight.distance;
+                task_sonar.right = sonarRight.distance;
                 osEventFlagsClear(flagsOSHandle, FLAG_SONAR_RIGHT_OK | FLAG_SONAR_RIGHT_TIMEOUT);
             }
             else if (flags & FLAG_SONAR_RIGHT_TIMEOUT) {
@@ -727,9 +737,9 @@ void StartPollingServer(void *argument)
 #endif
 
 #else
-        Board2_U.remoteController = (BUS_RemoteController){ 0, 0, 0 };
-        Board2_U.gyroscope = 32;
-        Board2_U.sonar = (BUS_Sonar){ 380, 400, 380 };
+        task_remoteController = (BUS_RemoteController){ 0, 0, 0 };
+        task_gyroscope = 32;
+        task_sonar = (BUS_Sonar){ 380, 400, 380 };
 		DWT_DelayUs(WCET_POLLING_SERVER);
 #endif
 

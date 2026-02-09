@@ -95,6 +95,11 @@ uint8_t encoder_read_failed = 0;
 uint8_t temperature_read_failed = 0;
 uint8_t battery_read_failed = 0;
 
+/* TASK OUTPUT VARIABLES (written by tasks, read by Supervisor) */
+volatile BUS_Speed task_speed = { 0.0f, 0.0f, 0.0f, 0.0f };
+volatile Temperature task_temperature = 0.0f;
+volatile BatteryLevel task_batteryLevel = 0;
+
 /* Timer Handler from main.c */
 extern timer_t timerSupervisor;
 
@@ -321,8 +326,8 @@ void StartPID(void *argument)
 			current_speed[i] = Encoder_GetSpeedRPM(&encoders[i]);
 		}
 
-		/* UPDATE SIMULINK MODEL */
-		Board1_U.speed = (BUS_Speed ) { current_speed[0], current_speed[1],
+		/* UPDATE TASK VARIABLE */
+		task_speed = (BUS_Speed ) { current_speed[0], current_speed[1],
 						current_speed[2], current_speed[3] };
 
 		/* EXECUTE MOTOR CONTROL */
@@ -336,7 +341,7 @@ void StartPID(void *argument)
 #endif
 
 #else
-		Board1_U.speed = (BUS_Speed ) { current_speed[0], current_speed[1],
+		task_speed = (BUS_Speed ) { current_speed[0], current_speed[1],
 						current_speed[2], current_speed[3] };
 		DWT_DelayUs(WCET_PID);
 #endif
@@ -384,6 +389,11 @@ void StartSupervisor(void *argument)
 		encoder_read_failed = 0;
 		temperature_read_failed = 0;
 		battery_read_failed = 0;
+
+		/* Copy task variables into Simulink model inputs */
+		Board1_U.speed = task_speed;
+		Board1_U.temperature = task_temperature;
+		Board1_U.batteryLevel = task_batteryLevel;
 
 		/* START TIMER FOR MONITORING WCET */
 		if (Board1_U.batteryLevel <= 23) {
@@ -467,19 +477,19 @@ void StartReadTemperature(void *argument)
 
 		float temp_val = 0.0f;
 		if (temp_ky028_read_temperature(&temp_sensor, &temp_val) == 0) {
-			Board1_U.temperature = (Temperature) temp_val;
+			task_temperature = (Temperature) temp_val;
 			temperature_read_failed = 0;
 		} else {
-			Board1_U.temperature = -255.0f;
+			task_temperature = -255.0f;
 			temperature_read_failed = 1;
 		}
 
 #if PRINT_TASK
-        printTemperature(Board1_U.temperature);
+        printTemperature(task_temperature);
 #endif
 
 #else
-        Board1_U.temperature = 32.3f;
+        task_temperature = 32.3f;
 		DWT_DelayUs(WCET_TEMPERATURE);
 #endif
 
@@ -516,20 +526,20 @@ void StartReadBattery(void *argument)
 #if REAL_TASK
 
 		if (battery_get_percentage_linear(battery_read_voltage(&battery),
-				MIN_VOLTAGE, MAX_VOLTAGE, &Board1_U.batteryLevel) == 0) {
+				MIN_VOLTAGE, MAX_VOLTAGE, (BatteryLevel *)&task_batteryLevel) == 0) {
 			battery_read_failed = 0;
-			// Board1_U.batteryLevel updated
+			// task_batteryLevel updated
 		} else {
-			Board1_U.batteryLevel = 255;
+			task_batteryLevel = 255;
 			battery_read_failed = 1;
 		}
 
 #if PRINT_TASK
-        printBattery((float)Board1_U.batteryLevel);
+        printBattery(task_batteryLevel);
 #endif
 
 #else
-        Board1_U.batteryLevel = 32;
+        task_batteryLevel = 32;
 		DWT_DelayUs(WCET_BATTERY);
 #endif
 
