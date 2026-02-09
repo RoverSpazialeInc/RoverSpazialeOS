@@ -476,10 +476,6 @@ void StartSupervisor(void *argument)
 	 */
 	uint32_t next_supervisor = start_tick;
 
-#if ENTER_DEGRADED_MODE
-	enterDegraded();
-#endif
-
 	periodic_wait(&next_supervisor, T, &MissSupervisor);  // Skip first communication
 
 	/* Infinite loop */

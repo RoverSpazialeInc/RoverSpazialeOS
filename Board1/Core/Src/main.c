@@ -192,24 +192,6 @@ int main(void)
 	}
 
 
-//	/* TESTING OPEN LOOP CONTROL */
-//	float set_point = -30.0f;
-//
-//	while(1){
-//		// for sui motori
-//		for (int i = 0; i < N_MOTORS; i++){
-//			MotorControl_SetReferenceRPM(&motors[i], set_point);
-//			MotorControl_OpenLoopActuate(&motors[i]);
-//
-//			// lo faccio per 10 volte
-//			for (int j = 0; j < 10; j++){
-//				float speed = Encoder_GetSpeedRPM(&encoders[i]);
-//				printFloat(speed, 2);
-//				HAL_Delay(200);
-//			}
-//		}
-//	}
-
   /* USER CODE END 2 */
 
   /* Init scheduler */

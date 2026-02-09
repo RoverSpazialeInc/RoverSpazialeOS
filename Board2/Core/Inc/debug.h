@@ -68,13 +68,6 @@
 
 
 /**
- * @brief Enable Degraded Mode
- * 1: System enters degraded mode on start
- * 0: System does not enter degraded mode on start
- */
-#define ENTER_DEGRADED_MODE 0
-
-/**
  * @brief Enable ReadSonars Task
  * 1: ReadSonars Task is scheduled
  * 0: ReadSonars Task is not scheduled

@@ -385,6 +385,11 @@ void StartSupervisor(void *argument)
 		temp |= (battery_read_failed        & 0x01) << 2;
 		//Board1_U.areSensorsValid = temp;
 
+#if ENTER_DEGRADED_MODE
+		// In this way the boards will dedice together to enter in degraded mode
+		Board1_U.areSensorsValid = 1;
+#endif
+
 		/* Clear previous error flags */
 		encoder_read_failed = 0;
 		temperature_read_failed = 0;
