@@ -15,11 +15,7 @@
 
 /**
  * @file motor_control.c
- * @brief Implementation of motor control functionalities including PID regulation and PWM actuation.
- *
- * This file contains the implementation of functions for initializing motor control,
- * setting references, computing control signals (U), and actuating the motor via PWM.
- * It also includes helper functions for linear mapping and voltage-to-duty cycle conversion.
+ * @brief Driver implementation for motor control logic.
  */
 
 #include "motor_control.h"
@@ -28,16 +24,16 @@
 
 /**
  * @brief Generic linear mapping function (Arduino style 'map').
- * 
- * Maps the value x from range [in_min, in_max] into range [out_min, out_max].
+ *
+ * Maps the value x from range [in_min, in_max] to range [out_min, out_max].
  * Formula: out = out_min + (x - in_min) * (out_max - out_min) / (in_max - in_min)
- * 
- * @param x Input value to map.
- * @param in_min Lower bound of the input range.
- * @param in_max Upper bound of the input range.
- * @param out_min Lower bound of the output range.
- * @param out_max Upper bound of the output range.
- * @return float Mapped value.
+ *
+ * @param x Input value.
+ * @param in_min Minimum value of input range.
+ * @param in_max Maximum value of input range.
+ * @param out_min Minimum value of output range.
+ * @param out_max Maximum value of output range.
+ * @return Mapped value.
  */
 static inline float map_linear(float x, float in_min, float in_max, float out_min, float out_max)
 {
@@ -45,38 +41,47 @@ static inline float map_linear(float x, float in_min, float in_max, float out_mi
 }
 
 /**
- * @brief Converts voltage to duty cycle percentage.
- * 
- * @param m Pointer to the MotorControl structure.
- * @param volt Voltage value to convert.
- * @return float Duty cycle percentage.
+ * @brief Converts voltage to duty cycle percentage based on motor configuration.
+ * @param m Pointer to MotorControl structure.
+ * @param volt Voltage to convert.
+ * @return Duty cycle percentage.
  */
 static inline float volt_to_duty_percent(const MotorControl *m, float volt)
 {
-  // 1. Normalize volt to a "raw" percentage value (0-100 based on 12V).
-  // Note: This step depends on specific logic where 12V = 100%.
+  // 1. Normalizza volt in un valore "grezzo" percentuale (0-100 basato su 12V)
+  // Nota: Questo passaggio dipende dalla tua logica specifica dove 12V = 100%
   float duty_raw = (volt * 100.0f) / 12.0f;
 
-  // 2. Map the input range (e.g. -100 to +100) to the configured output range (e.g. 56.8 to 94.6).
+  // 2. Mappa il range di input (es. -100 a +100) al range di output configurato (es. 56.8 a 94.6)
   return map_linear(duty_raw, m->in_min, m->in_max, m->out_min, m->out_max);
 }
 
+/**
+ * @brief Converts duty cycle percentage to pulse width (CCR value).
+ * @param m Pointer to MotorControl structure.
+ * @param duty_percent Duty cycle percentage.
+ * @return Pulse width value for CCR.
+ */
+static inline int duty_percent_to_pulse(const MotorControl *m, float duty_percent)
+{
+  float pulse_f = (duty_percent / 100.0f) * (float)m->arr_pwm_plus_one;
+  return (int)roundf(pulse_f);
+}
 
 /**
- * @brief Initializes the MotorControl structure with the given parameters.
- * 
- * @param mc Pointer to the MotorControl structure to initialize.
- * @param htim_pwm Handle to the TIM object used for PWM.
- * @param pwm_channel PWM channel to be used.
+ * @brief Initializes the Motor Control structure.
+ * @param mc Pointer to the MotorControl structure.
+ * @param htim_pwm PWM timer handle.
+ * @param pwm_channel PWM channel.
  * @param Ts Sampling time.
- * @param min_volt Minimum voltage for the controller saturation.
- * @param max_volt Maximum voltage for the controller saturation.
- * @param in_min Input range minimum for mapping.
- * @param in_max Input range maximum for mapping.
- * @param out_min Output range minimum for mapping.
- * @param out_max Output range maximum for mapping.
- * @param dc_gain DC gain for open loop control.
- * @param default_regulator Pointer to the default PID regulator.
+ * @param min_volt Minimum voltage.
+ * @param max_volt Maximum voltage.
+ * @param in_min Input range minimum (for map).
+ * @param in_max Input range maximum (for map).
+ * @param out_min Output range minimum (for map).
+ * @param out_max Output range maximum (for map).
+ * @param dc_gain Motor DC gain.
+ * @param default_regulator Default PID regulator.
  */
 void MotorControl_Init(
   MotorControl *mc,
@@ -101,7 +106,7 @@ void MotorControl_Init(
   mc->out_max = out_max;
   
   mc->dc_gain = dc_gain; 
-
+  
   mc->current_regulator = default_regulator;
 
   mc->reference_rpm = 0.0f;
@@ -113,10 +118,9 @@ void MotorControl_Init(
 }
 
 /**
- * @brief Sets the reference speed in RPM.
- * 
+ * @brief Sets the reference RPM for the motor.
  * @param mc Pointer to the MotorControl structure.
- * @param ref_rpm Reference speed in RPM.
+ * @param ref_rpm Reference Speed in RPM.
  */
 void MotorControl_SetReferenceRPM(MotorControl *mc, float ref_rpm)
 {
@@ -124,25 +128,24 @@ void MotorControl_SetReferenceRPM(MotorControl *mc, float ref_rpm)
 }
 
 /**
- * @brief Sets the PID regulator to be used.
- * 
+ * @brief Switches the active PID regulator.
  * @param mc Pointer to the MotorControl structure.
- * @param reg Pointer to the PIDController structure.
+ * @param reg Pointer to the new PIDController.
  */
 void MotorControl_SetRegulator(MotorControl *mc, PIDController *reg)
 {
     if (reg != NULL)
     {
+    	PID_Change_Context(reg, mc->current_regulator);
         mc->current_regulator = reg;
     }
 }
 
 /**
- * @brief Computes the control signal (U) based on the current speed and reference.
- * 
+ * @brief Computes the control signal (Voltage) based on current speed.
  * @param mc Pointer to the MotorControl structure.
- * @param speed_rpm Current speed in RPM.
- * @return float Control signal U (saturated).
+ * @param speed_rpm Current motor speed in RPM.
+ * @return Control signal (Voltage).
  */
 float MotorControl_ComputeU(MotorControl *mc, float speed_rpm)
 {
@@ -156,20 +159,17 @@ float MotorControl_ComputeU(MotorControl *mc, float speed_rpm)
 }
 
 /**
- * @brief Actuates the motor with the given control voltage.
- * 
+ * @brief Actuates the motor with the given voltage.
  * @param mc Pointer to the MotorControl structure.
- * @param u_volt Control voltage to apply.
- * @return int The pulse value applied to the PWM.
+ * @param u_volt Control voltage.
+ * @return The PWM pulse value applied.
  */
-int MotorControl_Actuate(MotorControl *mc, float u_volt){
+int MotorControl_Actuate(MotorControl *mc, float u_volt)
+{
   float duty = volt_to_duty_percent(mc, u_volt);
   int pulse = duty_percent_to_pulse(mc, duty);
 
-  // Hardware-Specific recalibration passing the mc object
-  //pulse = recalibrate_pulse(mc, pulse);
-
-  // (optional but useful) clamp CCR in [0, ARR]
+  // (opzionale ma utile) clamp CCR in [0, ARR]
   if (pulse < 0) pulse = 0;
   if ((uint64_t)pulse > (mc->arr_pwm_plus_one - 1ULL)) pulse = (int)(mc->arr_pwm_plus_one - 1ULL);
 
@@ -181,33 +181,28 @@ int MotorControl_Actuate(MotorControl *mc, float u_volt){
 
 /**
  * @brief Updates the motor control loop.
- * 
- * Computes the control signal and actuates the motor.
- * 
  * @param mc Pointer to the MotorControl structure.
  * @param speed_rpm Current speed in RPM.
- * @return int The pulse value applied to the PWM.
+ * @return The PWM pulse value applied.
  */
-int MotorControl_Update(MotorControl *mc, float speed_rpm)
+int MotorControl_ClosedLoop(MotorControl *mc, float speed_rpm)
 {
   float u = MotorControl_ComputeU(mc, speed_rpm);
   return MotorControl_Actuate(mc, u);
 }
 
 /**
- * @brief Actuates the motor in open loop using the DC gain.
- * 
+ * @brief Provides open-loop actuation based on reference RPM and DC gain.
  * @param mc Pointer to the MotorControl structure.
  */
 void MotorControl_OpenLoopActuate(MotorControl *mc){
-    // Use the specific motor gain saved in the struct
+    // Usa il guadagno specifico del motore salvato nella struct
     // u_volt = ref_rpm / k_gain
-    if (mc->dc_gain > 0.001f) { // Avoid division by zero
+    if (mc->dc_gain > 0.001f) { // Evita divisione per zero
         float u_volt = mc->reference_rpm / mc->dc_gain;
         MotorControl_Actuate(mc, u_volt);
     } else {
         MotorControl_Actuate(mc, 0.0f);
     }
 }
-
 

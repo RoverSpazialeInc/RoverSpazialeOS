@@ -177,7 +177,12 @@ int main(void)
 
 	Motors_InitAll();
 	Motors_StartAllPwm();
-	Motors_SetDefaultCcr(720);
+	Motors_SetDefaultCcr(757);
+
+	for (int i = 0; i < N_MOTORS; i++){
+		MotorControl_SetReferenceRPM(&motors[i], 0.0f);
+		MotorControl_OpenLoopActuate(&motors[i]);
+	}
 
 	if(timer_init(&timerSupervisor, &htim7, TIM7_IN_FREQUENCY) != TIMER_OK){return -1;}
 

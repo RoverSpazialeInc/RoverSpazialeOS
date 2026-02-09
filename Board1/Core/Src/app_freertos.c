@@ -396,9 +396,9 @@ void StartSupervisor(void *argument)
 		Board1_U.batteryLevel = task_batteryLevel;
 
 		/* START TIMER FOR MONITORING WCET */
-		if (Board1_U.batteryLevel <= 23) {
-			Board1_U.batteryLevel = 40;
-		}
+//		if (Board1_U.batteryLevel <= 23) {
+//			Board1_U.batteryLevel = 40;
+//		}
 
 		//timer_start(&timerSupervisor);
 
@@ -427,11 +427,11 @@ void StartSupervisor(void *argument)
 
 		//printMotorSpeeds(&Board1_U.speed);
 
-//		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
-//			cycle_count = 0;
-//			printGlobalState(&Board1_Y.board1GlobalState);
-//			printDecision(&Board1_Y.board1Decision);
-//		}
+		if (cycle_count >= 1) { // Approx 2 seconds (50ms * 40)
+			cycle_count = 0;
+			printGlobalState(&Board1_Y.board1GlobalState);
+			printDecision(&Board1_Y.board1Decision);
+		}
 
 
 		/* END PRINT SECTION */

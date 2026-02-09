@@ -479,12 +479,14 @@ void StartSupervisor(void *argument)
 		gyroscope_read_failed = 0;
 		sonar_read_failed = 0;
 
-		manage_fake_sonar_toggle();
 
 		/* Copy task variables into Simulink model inputs */
 		Board2_U.remoteController = task_remoteController;
 		Board2_U.gyroscope = task_gyroscope;
 		Board2_U.sonar = task_sonar;
+
+		manage_fake_sonar_toggle();
+
 
 		/* START TIMER FOR MONITORING WCET */
 		//timer_start(&timerSupervisor);

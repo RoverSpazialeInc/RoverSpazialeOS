@@ -15,18 +15,16 @@
 
 /**
  * @file regulator.c
- * @brief PID regulator implementation
- * 
- * This file contains the implementation of a discrete PID controller.
+ * @brief Implementation of PID controller/regulator.
  */
 
 #include "regulator.h"
 
 /**
- * @brief  Initializes the PID controller with specific gains.
- * @param  pid Pointer to the PID controller structure.
- * @param  k_err Gain for the current error term.
- * @param  k_last_err Gain for the previous error term.
+ * @brief Initializes the PID Controller.
+ * @param pid Pointer to the PIDController structure.
+ * @param k_err Error gain.
+ * @param k_last_err Last Error gain.
  */
 void PID_Init(PIDController *pid, float k_err, float k_last_err)
 {
@@ -36,8 +34,8 @@ void PID_Init(PIDController *pid, float k_err, float k_last_err)
 }
 
 /**
- * @brief  Resets the internal state of the PID controller.
- * @param  pid Pointer to the PID controller structure.
+ * @brief Resets the internal state of the PID Controller.
+ * @param pid Pointer to the PIDController structure.
  */
 void PID_Reset(PIDController *pid)
 {
@@ -46,12 +44,23 @@ void PID_Reset(PIDController *pid)
 }
 
 /**
- * @brief  Computes the control output based on the error signal.
- * @param  pid Pointer to the PID controller structure.
- * @param  error Current error value.
- * @param  min_sat Minimum saturation limit for the output.
- * @param  max_sat Maximum saturation limit for the output.
- * @return Computed control output, saturated within [min_sat, max_sat].
+ * @brief Changes the internal context of a PID Controller to match another.
+ * @param pid_1 Pointer to the PIDController to be updated.
+ * @param pid_2 Pointer to the PIDController whose context will be copied.
+ */
+void PID_Change_Context(PIDController *pid_1, PIDController *pid_2)
+{
+	pid_1->last_error = pid_2->last_error;
+	pid_1->z = pid_2->z;
+}
+
+/**
+ * @brief Computes the control output.
+ * @param pid Pointer to the PIDController structure.
+ * @param error Current error (reference - measure).
+ * @param min_sat Minimum saturation limit.
+ * @param max_sat Maximum saturation limit.
+ * @return Saturated control output.
  */
 float PID_Compute(PIDController *pid, float error, float min_sat, float max_sat)
 {

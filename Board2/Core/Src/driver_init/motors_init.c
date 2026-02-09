@@ -16,44 +16,30 @@
 /**
  * @file motors_init.c
  * @brief Initialization source file for motors and PID controllers.
- *
- * This file contains the initialization sequences for all motors, their associated
- * PID controllers for different speeds (fast, medium, slow), and PWM start functions.
  */
 
 #include "motors_init.h"
 #include "stm32g4xx_hal.h"
 
+/** @brief PWM Timer Handle (TIM1) */
 extern TIM_HandleTypeDef htim1;
 
-/**
- * @brief Array of motor control structures.
- */
+/** @brief Array of Motor Control structures */
 MotorControl motors[N_MOTORS];
 
-/**
- * @brief Array of PID controllers for fast speed.
- */
+/** @brief Fast PID controllers for each motor */
 PIDController pid_fast[N_MOTORS];
-
-/**
- * @brief Array of PID controllers for medium speed.
- */
+/** @brief Medium PID controllers for each motor */
 PIDController pid_medium[N_MOTORS];
-
-/**
- * @brief Array of PID controllers for slow speed.
- */
+/** @brief Slow PID controllers for each motor */
 PIDController pid_slow[N_MOTORS];
 
+
 /**
- * @brief Initializes all motors and their PID controllers.
- *
- * This function sets up the PID gains for fast, medium, and slow modes,
- * configures the PWM channels and DC gains for each motor, and initializes
- * the motor control structures.
- *
- * @retval None
+ * @brief Initialize all motors and their PID controllers.
+ * 
+ * Configures PID gains (fast, medium, slow), PWM channels, DC gains,
+ * and initializes the MotorControl structures with the default parameters.
  */
 void Motors_InitAll(void)
 {
@@ -108,11 +94,7 @@ void Motors_InitAll(void)
 }
 
 /**
- * @brief Starts PWM signals for all motors.
- *
- * This function enables the PWM generation on the timer channels associated with each motor.
- *
- * @retval None
+ * @brief Starts PWM generation for all motors.
  */
 void Motors_StartAllPwm(void)
 {
@@ -124,11 +106,7 @@ void Motors_StartAllPwm(void)
 
 /**
  * @brief Sets a default Capture Compare Register (CCR) value for all motors.
- *
- * This function updates the PWM duty cycle for all motors to the specified CCR value.
- *
- * @param ccr The new CCR value to set for all motors.
- * @retval None
+ * @param ccr The CCR value to set (pulse width).
  */
 void Motors_SetDefaultCcr(uint32_t ccr)
 {

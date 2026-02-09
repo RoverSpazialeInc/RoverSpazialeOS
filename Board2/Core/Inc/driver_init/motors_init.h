@@ -36,7 +36,7 @@ typedef enum {
     MOTOR_FRONT_RIGHT,    /**< Front Right Motor */
     MOTOR_REAR_RIGHT,     /**< Rear Right Motor */
     MOTOR_REAR_LEFT,      /**< Rear Left Motor */
-    N_MOTORS              /**< Total number of motors */
+    N_MOTORS              /**< Number of motors */
 } MotorId;
 
 /** @brief Array of MotorControl structures */
@@ -64,7 +64,7 @@ void Motors_StartAllPwm(void);
 
 /**
  * @brief Set the default CCR value for all motors.
- * @param ccr The Capture Compare Register value to set (pulse width).
+ * @param ccr The Capture Compare Register value to set.
  */
 void Motors_SetDefaultCcr(uint32_t ccr);
 

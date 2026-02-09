@@ -15,7 +15,7 @@
 
 /**
  * @file regulator.h
- * @brief Header file for PID Controller regulator.
+ * @brief PID Controller driver header file.
  */
 
 #ifndef INC_DRIVER_REGULATOR_H_
@@ -26,12 +26,12 @@
  */
 typedef struct {
   /* Coefficients */
-  float k_err;       /**< Error gain */
-  float k_last_err;  /**< Last error gain */
+  float k_err;      /**< Error gain */
+  float k_last_err; /**< Last Error gain */
   
   /* State */
-  float last_error;  /**< Last recorded error */
-  float z;           /**< Memory (accumulated output / integral state) */
+  float last_error; /**< Last known error */
+  float z;          /**< Memory (accumulated output / integral state) */
 } PIDController;
 
 /**
@@ -57,5 +57,12 @@ void PID_Reset(PIDController *pid);
  * @return Saturated control output.
  */
 float PID_Compute(PIDController *pid, float error, float min_sat, float max_sat);
+
+/**
+ * @brief Change the internal context of a PID Controller to match another.
+ * @param pid_1 Pointer to the PIDController to be updated.
+ * @param pid_2 Pointer to the PIDController whose context will be copied.
+ */
+void PID_Change_Context(PIDController *pid_1, PIDController *pid_2);
 
 #endif /* INC_DRIVER_REGULATOR_H_ */

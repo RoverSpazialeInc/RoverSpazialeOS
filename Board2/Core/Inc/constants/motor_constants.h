@@ -77,6 +77,9 @@ static const float DC_GAIN_MOT3 = 14.210f;
 /** Guadagno statico (RPM/V) - Motore 4 (Rear Left) */
 static const float DC_GAIN_MOT4 = 14.510f;
 
+
+
+
 /* -------------------------------------------------------------------------- */
 /*                    MOTOR CONTROLLER GAINS (PER-MOTOR)                     */
 /* -------------------------------------------------------------------------- */
@@ -99,6 +102,7 @@ static const float DC_GAIN_MOT4 = 14.510f;
 /** Rear Left (Motore 4) */
 #define FAST_MOT4_K_ERR        (0.05454171f)
 #define FAST_MOT4_K_LAST_ERR  (-0.01553629f)
+
 
 /* --------------------------- MEDIUM MODE GAINS ------------------------------ */
 
