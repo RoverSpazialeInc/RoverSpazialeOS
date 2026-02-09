@@ -35,6 +35,7 @@ uint8_t BUS_LocalStateB1_Equals(const BUS_LocalStateB1 *a, const BUS_LocalStateB
     if (a->temperature != b->temperature) return 0;
     if (a->batteryLevel != b->batteryLevel) return 0;
     if (a->sensorReadings != b->sensorReadings) return 0;
+    if (a->deadlineOccurred != b->deadlineOccurred) return 0;
     return 1;
 }
 
@@ -44,6 +45,7 @@ uint8_t BUS_LocalStateB2_Equals(const BUS_LocalStateB2 *a, const BUS_LocalStateB
     if (a->gyroscope != b->gyroscope) return 0;
     if (!BUS_RemoteController_Equals(&a->remoteController, &b->remoteController)) return 0;
     if (a->sensorReadings != b->sensorReadings) return 0;
+    if (a->deadlineOccurred != b->deadlineOccurred) return 0;
     return 1;
 }
 

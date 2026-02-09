@@ -26,6 +26,10 @@ int deserializeLocalStateB1(const uint8_t *buf, size_t len, BUS_LocalStateB1 *st
     memcpy(&state->sensorReadings, &buf[i], SENSOR_READINGS_FRAME_SIZE);
     i += SENSOR_READINGS_FRAME_SIZE;
 
+    /*deadlineOccurred*/
+    memcpy(&state->deadlineOccurred, &buf[i], DEADLINE_OCCURRED_FRAME_SIZE);
+    i += DEADLINE_OCCURRED_FRAME_SIZE;
+
     return 0;
 }
 
@@ -51,6 +55,10 @@ int deserializeLocalStateB2(const uint8_t *buf, size_t len, BUS_LocalStateB2 *st
     /*sensorReadings*/
     memcpy(&state->sensorReadings, &buf[i], SENSOR_READINGS_FRAME_SIZE);
     i += SENSOR_READINGS_FRAME_SIZE;
+
+    /*deadlineOccurred*/
+    memcpy(&state->deadlineOccurred, &buf[i], DEADLINE_OCCURRED_FRAME_SIZE);
+    i += DEADLINE_OCCURRED_FRAME_SIZE;
 
     return 0;
 }

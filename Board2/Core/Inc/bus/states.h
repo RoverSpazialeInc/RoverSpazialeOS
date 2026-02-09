@@ -10,6 +10,7 @@ typedef struct {
     BatteryLevel batteryLevel;
 
     uint8_t     sensorReadings;
+    uint8_t     deadlineOccurred;
 } BUS_LocalStateB1;
 
 /* LocalStateB2 */
@@ -19,6 +20,7 @@ typedef struct {
     BUS_RemoteController remoteController;
 
     uint8_t     sensorReadings;
+    uint8_t     deadlineOccurred;
 } BUS_LocalStateB2;
 
 /* GlobalState */

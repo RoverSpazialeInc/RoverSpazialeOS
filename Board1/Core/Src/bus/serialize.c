@@ -24,6 +24,10 @@ size_t serializeLocalStateB1(uint8_t *buf, const BUS_LocalStateB1 *state)
     memcpy(&buf[i], &state->sensorReadings, SENSOR_READINGS_FRAME_SIZE);
     i += SENSOR_READINGS_FRAME_SIZE;
 
+    /*deadlineOccurred*/
+    memcpy(&buf[i], &state->deadlineOccurred, DEADLINE_OCCURRED_FRAME_SIZE);
+    i += DEADLINE_OCCURRED_FRAME_SIZE;
+
     return i; /* = LOCAL_STATE_B1_FRAME_SIZE */
 }
 
@@ -48,6 +52,10 @@ size_t serializeLocalStateB2(uint8_t *buf, const BUS_LocalStateB2 *state)
     /*sensorReadings*/
     memcpy(&buf[i], &state->sensorReadings, SENSOR_READINGS_FRAME_SIZE);
     i += SENSOR_READINGS_FRAME_SIZE;
+
+    /*deadlineOccurred*/
+    memcpy(&buf[i], &state->deadlineOccurred, DEADLINE_OCCURRED_FRAME_SIZE);
+    i += DEADLINE_OCCURRED_FRAME_SIZE;
 
     return i; /* = LOCAL_STATE_B2_FRAME_SIZE */
 }
