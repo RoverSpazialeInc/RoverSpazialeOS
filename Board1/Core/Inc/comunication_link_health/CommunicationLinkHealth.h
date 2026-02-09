@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'CommunicationLinkHealth'.
  *
- * Model version                  : 20.9
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Wed Jan 28 15:38:50 2026
+ * Model version                  : 20.13
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:32 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -77,7 +77,7 @@ extern MdlrefDW_CommunicationLinkHea_T CommunicationLinkHealt_MdlrefDW;
 /* Block states (default storage) */
 extern DW_CommunicationLinkHealth_f_T CommunicationLinkHealth_DW;
 extern void CommunicationLinkHealth_Init(void);
-extern void Communicatio_UpdateMotorsHealth(const ENUM_CycleResult
+extern void C_UpdateCommunicationLinkHealth(const ENUM_CycleResult
   *rtu_cycleResult, ENUM_LinkStatus *rty_communicationLinkHealth);
 
 /* Model reference registration function */

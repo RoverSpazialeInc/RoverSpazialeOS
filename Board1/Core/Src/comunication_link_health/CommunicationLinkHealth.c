@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'CommunicationLinkHealth'.
  *
- * Model version                  : 20.9
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Wed Jan 28 15:38:50 2026
+ * Model version                  : 20.13
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:32 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -24,6 +24,8 @@
 
 /* Named constants for Chart: '<Root>/CommunicationLinkHealth' */
 #define Communica_MIN_CONSECUTIVE_CLEAN (5.0)
+#define Communica_MIN_CONSECUTIVE_DIRTY (10.0)
+#define Communicat_MIN_CONSECUTIVE_FAIL (2.0)
 #define CommunicationL_IN_Link_degraded ((uint8_T)3U)
 #define CommunicationLinkH_IN_Link_Lost ((uint8_T)1U)
 #define CommunicationLinkHea_IN_Link_OK ((uint8_T)2U)
@@ -53,18 +55,18 @@ DW_CommunicationLinkHealth_f_T CommunicationLinkHealth_DW;
 /* System initialize for referenced model: 'CommunicationLinkHealth' */
 void CommunicationLinkHealth_Init(void)
 {
-  /* SystemInitialize for RootInportFunctionCallGenerator generated from: '<Root>/UpdateMotorsHealth' incorporates:
+  /* SystemInitialize for RootInportFunctionCallGenerator generated from: '<Root>/UpdateCommunicationLinkHealth' incorporates:
    *  Chart: '<Root>/CommunicationLinkHealth'
    */
   /* Chart: '<Root>/CommunicationLinkHealth' */
   CommunicationLinkHealth_DW.bitsForTID1.is_LinkHealth =
     CommunicationLinkHea_IN_Link_OK;
 
-  /* End of SystemInitialize for RootInportFunctionCallGenerator generated from: '<Root>/UpdateMotorsHealth' */
+  /* End of SystemInitialize for RootInportFunctionCallGenerator generated from: '<Root>/UpdateCommunicationLinkHealth' */
 }
 
 /* Output and update for referenced model: 'CommunicationLinkHealth' */
-void Communicatio_UpdateMotorsHealth(const ENUM_CycleResult *rtu_cycleResult,
+void C_UpdateCommunicationLinkHealth(const ENUM_CycleResult *rtu_cycleResult,
   ENUM_LinkStatus *rty_communicationLinkHealth)
 {
   uint64_T qY;
@@ -72,7 +74,7 @@ void Communicatio_UpdateMotorsHealth(const ENUM_CycleResult *rtu_cycleResult,
   boolean_T guard1;
   boolean_T guard2;
 
-  /* RootInportFunctionCallGenerator generated from: '<Root>/UpdateMotorsHealth' incorporates:
+  /* RootInportFunctionCallGenerator generated from: '<Root>/UpdateCommunicationLinkHealth' incorporates:
    *  Chart: '<Root>/CommunicationLinkHealth'
    */
   /* Chart: '<Root>/CommunicationLinkHealth' */
@@ -134,8 +136,10 @@ void Communicatio_UpdateMotorsHealth(const ENUM_CycleResult *rtu_cycleResult,
         CommunicationLinkHealth_DW.consecutive_dirty = (uint8_T)tmp;
       }
 
-      if ((CommunicationLinkHealth_DW.consecutive_dirty >= 10) ||
-          (CommunicationLinkHealth_DW.consecutive_fail >= 2)) {
+      if ((CommunicationLinkHealth_DW.consecutive_dirty >= (int32_T)
+           Communica_MIN_CONSECUTIVE_DIRTY) ||
+          (CommunicationLinkHealth_DW.consecutive_fail >= (int32_T)
+           Communicat_MIN_CONSECUTIVE_FAIL)) {
         CommunicationLinkHealth_DW.bitsForTID1.is_LinkHealth =
           CommunicationLinkH_IN_Link_Lost;
         *rty_communicationLinkHealth = LINK_LOST;
@@ -160,7 +164,7 @@ void Communicatio_UpdateMotorsHealth(const ENUM_CycleResult *rtu_cycleResult,
   }
 
   /* End of Chart: '<Root>/CommunicationLinkHealth' */
-  /* End of Outputs for RootInportFunctionCallGenerator generated from: '<Root>/UpdateMotorsHealth' */
+  /* End of Outputs for RootInportFunctionCallGenerator generated from: '<Root>/UpdateCommunicationLinkHealth' */
 }
 
 /* Model initialize function */

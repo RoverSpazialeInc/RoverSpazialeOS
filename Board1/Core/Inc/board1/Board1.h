@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Board1'.
  *
- * Model version                  : 9.15
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Thu Jan 29 17:58:46 2026
+ * Model version                  : 10.1
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 12:05:31 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -29,6 +29,7 @@
 #include "sensors.h"
 #include "states.h"
 #include "decision.h"
+#include "decision_enums.h"
 
 /* Macros for accessing real-time model data structure */
 #ifndef rtmGetErrorStatus
@@ -60,13 +61,18 @@ typedef struct {
   ENUM_TemperatureStatus roverTemperatureHealth;/* '<Root>/RoverTemperatureHealth' */
   ENUM_SafeAction safeAction;          /* '<Root>/ActionsModel' */
   ENUM_RoverAction roverAction;        /* '<Root>/ActionsModel' */
+  ENUM_PidMode pidMode;                /* '<Root>/ActionsModel' */
   ENUM_MotorsStatus motorsHealth;      /* '<Root>/MotorsHealth' */
+  ENUM_MotorStatus LF_HealthMotor;     /* '<Root>/MotorsHealth' */
+  ENUM_MotorStatus LR_HealthMotor;     /* '<Root>/MotorsHealth' */
+  ENUM_MotorStatus RF_HealthMotor;     /* '<Root>/MotorsHealth' */
+  ENUM_MotorStatus RR_HealthMotor;     /* '<Root>/MotorsHealth' */
   ENUM_LinkStatus communicationLinkHealth;/* '<Root>/Model' */
   ENUM_Error errorB1;                  /* '<Root>/SupervisorB1' */
   ENUM_Error errorB2;                  /* '<Root>/SupervisorB1' */
   ENUM_CycleResult cycleResult;        /* '<Root>/SupervisorB1' */
-  ENUM_BoardStatus Status_Board1;      /* '<Root>/BoardsHealth' */
-  ENUM_BoardStatus Status_Board2;      /* '<Root>/BoardsHealth' */
+  ENUM_BoardStatus StatusBoard1;       /* '<Root>/BoardsHealth' */
+  ENUM_BoardStatus StatusBoard2;       /* '<Root>/BoardsHealth' */
 } B_Board1_T;
 
 /* Block states (default storage) for system '<Root>' */
@@ -127,6 +133,7 @@ typedef struct {
   uint8_T rx_buffer[64];               /* '<Root>/rx_buffer' */
   uint8_T areSensorsValid;             /* '<Root>/areSensorsValid' */
   uint8_T timeoutOccurred;             /* '<Root>/timeoutOccurred' */
+  uint8_T deadlineOccurred;            /* '<Root>/deadlineOccurred' */
 } ExtU_Board1_T;
 
 /* External outputs (root outports fed by signals with default storage) */

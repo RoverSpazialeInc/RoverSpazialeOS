@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'BoardsHealth'.
  *
- * Model version                  : 7.4
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Thu Jan 29 12:25:20 2026
+ * Model version                  : 7.6
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:24 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -24,10 +24,10 @@
 
 /* Block states (default storage) for model 'BoardsHealth' */
 typedef struct {
-  uint8_T count_updateB1;              /* '<Root>/BoardsHealth' */
-  uint8_T count_errorB1;               /* '<Root>/BoardsHealth' */
-  uint8_T count_errorB2;               /* '<Root>/BoardsHealth' */
-  uint8_T count_updateB2;              /* '<Root>/BoardsHealth' */
+  uint8_T countUpdateB1;               /* '<Root>/BoardsHealth' */
+  uint8_T countErrorB1;                /* '<Root>/BoardsHealth' */
+  uint8_T countErrorB2;                /* '<Root>/BoardsHealth' */
+  uint8_T countUpdateB2;               /* '<Root>/BoardsHealth' */
   uint8_T is_B1;                       /* '<Root>/BoardsHealth' */
   uint8_T is_B2;                       /* '<Root>/BoardsHealth' */
 } DW_BoardsHealth_f_T;

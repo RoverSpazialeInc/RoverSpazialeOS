@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'ActionsModel'.
  *
- * Model version                  : 8.4
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Thu Jan 29 17:58:09 2026
+ * Model version                  : 8.16
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:04 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -26,6 +26,7 @@
 #endif                                 /* ActionsModel_COMMON_INCLUDES_ */
 
 #include "decision.h"
+#include "decision_enums.h"
 #include "sensors.h"
 #include "ActionsModel_types.h"
 
@@ -38,7 +39,8 @@ extern void ActionsModel_ComputeRoverAction(const ENUM_UserAction
   *rtu_currentUserAction, const BUS_Speed *rtu_speed, const int16_T *rtu_x_lever,
   const int16_T *rtu_y_lever, const Gyroscope *rtu_gyroscope, const BUS_Sonar
   *rtu_sonar, BUS_SetPoint *rty_setPoint, ENUM_RoverAction *rty_roverAction,
-  ENUM_SafeAction *rty_safeAction, BUS_RedLeds *rty_redLeds);
+  ENUM_SafeAction *rty_safeAction, BUS_RedLeds *rty_redLeds, ENUM_PidMode
+  *rty_selectedPidMode);
 
 /* Model reference registration function */
 extern void ActionsModel_initialize(const char_T **rt_errorStatus);
@@ -60,6 +62,8 @@ extern void ActionsModel_initialize(const char_T **rt_errorStatus);
  * '<Root>' : 'ActionsModel'
  * '<S1>'   : 'ActionsModel/MovingObstacles'
  * '<S2>'   : 'ActionsModel/RoverAction'
+ * '<S3>'   : 'ActionsModel/Subsystem'
+ * '<S4>'   : 'ActionsModel/Subsystem/MATLAB Function'
  */
 #endif                                 /* ActionsModel_h_ */
 

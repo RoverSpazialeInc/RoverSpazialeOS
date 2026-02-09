@@ -8,8 +8,8 @@
  * Code generated for Simulink model 'RedLedsActuation'.
  *
  * Model version                  : 18.0
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Wed Jan 28 15:39:45 2026
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 12:05:08 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -20,7 +20,7 @@
  */
 
 #include "RedLedsActuation.h"
-#include "decision.h"
+#include "decision_enums.h"
 #include "rtwtypes.h"
 
 /* Named constants for Chart: '<Root>/RedLeds' */

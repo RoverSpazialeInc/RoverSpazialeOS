@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'MotorsHealth'.
  *
- * Model version                  : 20.5
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Thu Jan 29 17:58:31 2026
+ * Model version                  : 20.12
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:38 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -32,6 +32,17 @@
 
 /* Forward declaration for rtModel */
 typedef struct tag_RTM_MotorsHealth_T RT_MODEL_MotorsHealth_T;
+
+#ifndef DEFINED_TYPEDEF_FOR_ENUM_PidMode_
+#define DEFINED_TYPEDEF_FOR_ENUM_PidMode_
+
+typedef enum {
+  FAST = 0,                            /* Default value */
+  MEDIUM,
+  SLOW
+} ENUM_PidMode;
+
+#endif
 
 #ifndef DEFINED_TYPEDEF_FOR_ENUM_PidStatus_
 #define DEFINED_TYPEDEF_FOR_ENUM_PidStatus_
@@ -69,15 +80,14 @@ typedef struct {
   real32_T setPoint_leftAxis_start;    /* '<Root>/MotorsHealth' */
   real32_T setPoint_rightAxis_prev;    /* '<Root>/MotorsHealth' */
   real32_T setPoint_rightAxis_start;   /* '<Root>/MotorsHealth' */
+  ENUM_PidMode selectedPidMode_prev;   /* '<Root>/MotorsHealth' */
+  ENUM_PidMode selectedPidMode_start;  /* '<Root>/MotorsHealth' */
   ENUM_PidStatus LF_resultCheck;       /* '<Root>/MotorsHealth' */
   ENUM_PidStatus LR_resultCheck;       /* '<Root>/MotorsHealth' */
   ENUM_PidStatus RF_resultCheck;       /* '<Root>/MotorsHealth' */
   ENUM_PidStatus RR_resultCheck;       /* '<Root>/MotorsHealth' */
-  ENUM_MotorStatus LF_HealthMotor;     /* '<Root>/MotorsHealth' */
-  ENUM_MotorStatus LR_HealthMotor;     /* '<Root>/MotorsHealth' */
-  ENUM_MotorStatus RF_HealthMotor;     /* '<Root>/MotorsHealth' */
-  ENUM_MotorStatus RR_HealthMotor;     /* '<Root>/MotorsHealth' */
   struct {
+    uint_T is_ControlStrategy:3;       /* '<Root>/MotorsHealth' */
     uint_T is_LF_Motor:2;              /* '<Root>/MotorsHealth' */
     uint_T is_RF_Motor:2;              /* '<Root>/MotorsHealth' */
     uint_T is_RR_Motor:2;              /* '<Root>/MotorsHealth' */
@@ -85,6 +95,7 @@ typedef struct {
     uint_T doneDoubleBufferReInit:1;   /* '<Root>/MotorsHealth' */
   } bitsForTID1;
 
+  uint8_T settlingSamples;             /* '<Root>/MotorsHealth' */
   uint8_T LF_samples;                  /* '<Root>/MotorsHealth' */
   uint8_T LR_samples;                  /* '<Root>/MotorsHealth' */
   uint8_T RF_samples;                  /* '<Root>/MotorsHealth' */
@@ -106,7 +117,10 @@ extern MdlrefDW_MotorsHealth_T MotorsHealth_MdlrefDW;
 extern DW_MotorsHealth_f_T MotorsHealth_DW;
 extern void MotorsHealth_Init(void);
 extern void MotorsHealth_UpdateMotorsHealth(const BUS_SetPoint *rtu_setPoint,
-  const BUS_Speed *rtu_speed, ENUM_MotorsStatus *rty_motorsHealth);
+  const BUS_Speed *rtu_speed, const ENUM_PidMode *rtu_selectedPidMode,
+  ENUM_MotorsStatus *rty_motorsHealth, ENUM_MotorStatus *rty_LF_HealthMotor,
+  ENUM_MotorStatus *rty_LR_HealthMotor, ENUM_MotorStatus *rty_RF_HealthMotor,
+  ENUM_MotorStatus *rty_RR_HealthMotor);
 
 /* Model reference registration function */
 extern void MotorsHealth_initialize(const char_T **rt_errorStatus);

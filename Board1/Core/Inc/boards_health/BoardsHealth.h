@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'BoardsHealth'.
  *
- * Model version                  : 7.4
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Thu Jan 29 12:25:20 2026
+ * Model version                  : 7.6
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:24 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -38,8 +38,8 @@
 
 extern void BoardsHealth_Init(void);
 extern void BoardsHealth_UpdateBoardsStatus(const ENUM_Error *rtu_errorB1, const
-  ENUM_Error *rtu_errorB2, ENUM_BoardStatus *rty_Status_Board1, ENUM_BoardStatus
-  *rty_Status_Board2);
+  ENUM_Error *rtu_errorB2, ENUM_BoardStatus *rty_StatusBoard1, ENUM_BoardStatus *
+  rty_StatusBoard2);
 
 /* Model reference registration function */
 extern void BoardsHealth_initialize(const char_T **rt_errorStatus);

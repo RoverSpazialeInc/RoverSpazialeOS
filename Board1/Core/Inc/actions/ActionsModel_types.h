@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'ActionsModel'.
  *
- * Model version                  : 8.4
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Thu Jan 29 17:58:09 2026
+ * Model version                  : 8.16
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:04 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -19,6 +19,7 @@
 
 #ifndef ActionsModel_types_h_
 #define ActionsModel_types_h_
+#include "decision_enums.h"
 #include "sensors.h"
 #include "rtwtypes.h"
 #include "decision.h"
@@ -30,6 +31,17 @@ typedef enum {
   NO_OBSTACLE_MOVING,
   OBSTACLE_MOVING
 } ENUM_TrackingObstacles;
+
+#endif
+
+#ifndef DEFINED_TYPEDEF_FOR_ENUM_PidMode_
+#define DEFINED_TYPEDEF_FOR_ENUM_PidMode_
+
+typedef enum {
+  FAST = 0,                            /* Default value */
+  MEDIUM,
+  SLOW
+} ENUM_PidMode;
 
 #endif
 
