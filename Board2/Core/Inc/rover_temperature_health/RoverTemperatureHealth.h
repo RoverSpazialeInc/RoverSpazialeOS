@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'RoverTemperatureHealth'.
  *
- * Model version                  : 20.1
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Wed Jan 28 15:39:50 2026
+ * Model version                  : 20.4
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:43 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M

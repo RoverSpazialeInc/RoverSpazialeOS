@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Board2'.
  *
- * Model version                  : 8.32
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Thu Jan 29 18:00:25 2026
+ * Model version                  : 9.5
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:56 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -21,8 +21,20 @@
 #define Board2_types_h_
 #include "sensors.h"
 #include "decision.h"
+#include "decision_enums.h"
 #include "rtwtypes.h"
 #include "states.h"
+#ifndef DEFINED_TYPEDEF_FOR_ENUM_PidMode_
+#define DEFINED_TYPEDEF_FOR_ENUM_PidMode_
+
+typedef enum {
+  FAST = 0,                            /* Default value */
+  MEDIUM,
+  SLOW
+} ENUM_PidMode;
+
+#endif
+
 #ifndef DEFINED_TYPEDEF_FOR_ENUM_Error_
 #define DEFINED_TYPEDEF_FOR_ENUM_Error_
 
@@ -73,6 +85,16 @@ typedef enum {
   MOTORS_OK = 0,                       /* Default value */
   MOTORS_NOT_OK
 } ENUM_MotorsStatus;
+
+#endif
+
+#ifndef DEFINED_TYPEDEF_FOR_ENUM_MotorStatus_
+#define DEFINED_TYPEDEF_FOR_ENUM_MotorStatus_
+
+typedef enum {
+  MOTOR_OK = 0,                        /* Default value */
+  MOTOR_NOT_OK
+} ENUM_MotorStatus;
 
 #endif
 

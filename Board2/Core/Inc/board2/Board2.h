@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Board2'.
  *
- * Model version                  : 8.32
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Thu Jan 29 18:00:25 2026
+ * Model version                  : 9.5
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:56 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -29,6 +29,7 @@
 #include "sensors.h"
 #include "states.h"
 #include "decision.h"
+#include "decision_enums.h"
 
 /* Macros for accessing real-time model data structure */
 #ifndef rtmGetErrorStatus
@@ -60,13 +61,18 @@ typedef struct {
   ENUM_TemperatureStatus roverTemperatureHealth;/* '<Root>/RoverTemperatureHealth' */
   ENUM_SafeAction safeAction;          /* '<Root>/ActionsModel' */
   ENUM_RoverAction roverAction;        /* '<Root>/ActionsModel' */
+  ENUM_PidMode pidMode;                /* '<Root>/ActionsModel' */
   ENUM_MotorsStatus motorsHealth;      /* '<Root>/MotorsHealth' */
+  ENUM_MotorStatus LF_HealthMotor;     /* '<Root>/MotorsHealth' */
+  ENUM_MotorStatus LR_HealthMotor;     /* '<Root>/MotorsHealth' */
+  ENUM_MotorStatus RF_HealthMotor;     /* '<Root>/MotorsHealth' */
+  ENUM_MotorStatus RR_HealthMotor;     /* '<Root>/MotorsHealth' */
   ENUM_LinkStatus communicationLinkHealth;/* '<Root>/Model' */
   ENUM_Error errorB1;                  /* '<Root>/SupervisorB2' */
   ENUM_Error errorB2;                  /* '<Root>/SupervisorB2' */
   ENUM_CycleResult cycleResult;        /* '<Root>/SupervisorB2' */
-  ENUM_BoardStatus Status_Board1;      /* '<Root>/BoardsHealth' */
-  ENUM_BoardStatus Status_Board2;      /* '<Root>/BoardsHealth' */
+  ENUM_BoardStatus StatusBoard1;       /* '<Root>/BoardsHealth' */
+  ENUM_BoardStatus StatusBoard2;       /* '<Root>/BoardsHealth' */
 } B_Board2_T;
 
 /* Block states (default storage) for system '<Root>' */
@@ -127,14 +133,15 @@ typedef struct {
   uint8_T rx_buffer[64];               /* '<Root>/rx_buffer' */
   uint8_T areSensorsValid;             /* '<Root>/areSensorsValid' */
   uint8_T timeoutOccurred;             /* '<Root>/timeoutOccurred' */
+  uint8_T deadlineOccurred;            /* '<Root>/deadlineOccurred' */
 } ExtU_Board2_T;
 
 /* External outputs (root outports fed by signals with default storage) */
 typedef struct {
   uint8_T tx_buffer[64];               /* '<Root>/tx_buffer' */
   uint8_T supervision_ended;           /* '<Root>/supervision_ended' */
-  BUS_GlobalState board1GlobalState;   /* '<Root>/board1GlobalState' */
-  BUS_Decision board1Decision;         /* '<Root>/board1Decision' */
+  BUS_GlobalState board2GlobalState;   /* '<Root>/board2GlobalState' */
+  BUS_Decision board2Decision;         /* '<Root>/board2Decision' */
 } ExtY_Board2_T;
 
 /* Real-time Model Data Structure */

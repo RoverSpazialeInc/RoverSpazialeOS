@@ -3,13 +3,13 @@
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
  *
- * File: ActionsModel.h
+ * File: ActionsDegradedModel.h
  *
- * Code generated for Simulink model 'ActionsModel'.
+ * Code generated for Simulink model 'ActionsDegradedModel'.
  *
- * Model version                  : 8.16
+ * Model version                  : 9.7
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Mon Feb  9 11:34:04 2026
+ * C/C++ source code generated on : Mon Feb  9 11:35:59 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -17,33 +17,30 @@
  * Validation result: Not run
  */
 
-#ifndef ActionsModel_h_
-#define ActionsModel_h_
-#ifndef ActionsModel_COMMON_INCLUDES_
-#define ActionsModel_COMMON_INCLUDES_
+#ifndef ActionsDegradedModel_h_
+#define ActionsDegradedModel_h_
+#ifndef ActionsDegradedModel_COMMON_INCLUDES_
+#define ActionsDegradedModel_COMMON_INCLUDES_
 #include "rtwtypes.h"
 #include "math.h"
-#endif                                 /* ActionsModel_COMMON_INCLUDES_ */
+#endif                               /* ActionsDegradedModel_COMMON_INCLUDES_ */
 
 #include "decision.h"
 #include "decision_enums.h"
 #include "sensors.h"
-#include "ActionsModel_types.h"
+#include "ActionsDegradedModel_types.h"
 
 /* user code (top of header file) */
 #include "sensors.h"
 
-extern void ActionsModel_Init(BUS_SetPoint *rty_setPoint, ENUM_RoverAction
-  *rty_roverAction, BUS_RedLeds *rty_redLeds);
-extern void ActionsModel_ComputeRoverAction(const ENUM_UserAction
-  *rtu_currentUserAction, const BUS_Speed *rtu_speed, const int16_T *rtu_x_lever,
-  const int16_T *rtu_y_lever, const Gyroscope *rtu_gyroscope, const BUS_Sonar
-  *rtu_sonar, BUS_SetPoint *rty_setPoint, ENUM_RoverAction *rty_roverAction,
-  ENUM_SafeAction *rty_safeAction, BUS_RedLeds *rty_redLeds, ENUM_PidMode
-  *rty_selectedPidMode);
+extern void ActionsDegradedModel_Init(BUS_SetPoint *rty_setPoint);
+extern void ActionsDegra_ComputeRoverAction(const ENUM_UserAction
+  *rtu_currentUserAction, const int16_T *rtu_x_lever, const int16_T *rtu_y_lever,
+  const Gyroscope *rtu_gyroscope, const BUS_Sonar *rtu_sonar, BUS_SetPoint
+  *rty_setPoint);
 
 /* Model reference registration function */
-extern void ActionsModel_initialize(const char_T **rt_errorStatus);
+extern void ActionsDegradedModel_initialize(const char_T **rt_errorStatus);
 
 /*-
  * The generated code includes comments that allow you to trace directly
@@ -59,13 +56,10 @@ extern void ActionsModel_initialize(const char_T **rt_errorStatus);
  *
  * Here is the system hierarchy for this model
  *
- * '<Root>' : 'ActionsModel'
- * '<S1>'   : 'ActionsModel/MovingObstacles'
- * '<S2>'   : 'ActionsModel/RoverAction'
- * '<S3>'   : 'ActionsModel/Subsystem'
- * '<S4>'   : 'ActionsModel/Subsystem/MATLAB Function'
+ * '<Root>' : 'ActionsDegradedModel'
+ * '<S1>'   : 'ActionsDegradedModel/DegradedRoverAction'
  */
-#endif                                 /* ActionsModel_h_ */
+#endif                                 /* ActionsDegradedModel_h_ */
 
 /*
  * File trailer for generated code.

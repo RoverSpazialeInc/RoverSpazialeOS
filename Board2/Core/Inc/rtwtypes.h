@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'BoardsHealth'.
  *
- * Model version                  : 7.2
- * Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
- * C/C++ source code generated on : Wed Jan 28 15:38:45 2026
+ * Model version                  : 7.6
+ * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
+ * C/C++ source code generated on : Mon Feb  9 11:34:24 2026
  */
 
 #ifndef RTWTYPES_H
