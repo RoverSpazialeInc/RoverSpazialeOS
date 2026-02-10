@@ -57,7 +57,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+volatile uint32_t t0;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -283,11 +283,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			first_time = 1;
 			return;
 		} else {
+			uint32_t cycles = DWT_End(t0);
+			DWT_PrintCyclesAndUs("CTRL", cycles);
 			timer_period_elapsed(&timerSupervisor, htim);
 			Board1_U.timeoutOccurred++;
 			timer_reset(&timerSupervisor);
+			HAL_GPIO_WritePin(LedDebug_GPIO_Port, LedDebug_Pin, GPIO_PIN_RESET);
 #if VERBOSE_DEBUG_IT == 1
-			printMsg("SupervisorB1 WCET exceeded!\n\n");
+			printMsg("E\n");
 #endif
 		}
 	}

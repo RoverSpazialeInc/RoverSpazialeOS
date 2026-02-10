@@ -64,7 +64,7 @@
 /** @brief Period of the supervisor task (ms) – 20 Hz. */
 #define T_SUPERVISOR             	 50u
 /** @brief WCET of the supervisor task (ms). */
-#define WCET_SUPERVISOR_MS           15u
+#define WCET_SUPERVISOR_MS           25u
 /** @brief WCET of the supervisor task (us). */
 #define WCET_SUPERVISOR_US           MS_TO_US(WCET_SUPERVISOR_MS)
 /** @brief Alias for @ref WCET_SUPERVISOR_US. */

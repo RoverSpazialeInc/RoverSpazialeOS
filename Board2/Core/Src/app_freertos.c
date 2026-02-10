@@ -503,14 +503,14 @@ void StartSupervisor(void *argument)
 
 
 		/* START TIMER FOR MONITORING WCET */
-		//timer_start(&timerSupervisor);
+		timer_start(&timerSupervisor);
 
 		do {
 			Board2_step();
 		} while (Board2_Y.supervision_ended != 1);
 
 		/* STOP TIMER FOR MONITORING WCET */
-		//timer_reset(&timerSupervisor);
+		timer_reset(&timerSupervisor);
 
 
 		/* BEGIN PRINT SECTION */
@@ -828,8 +828,8 @@ void StartSupervisorDeg(void *argument)
 //		printNewLine();
 //
 		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
-			printLocalStateB2(&Board2Degraded_B.board2LocalState);
-			printSetPoint(&Board2Degraded_B.setPoint);
+//			printLocalStateB2(&Board2Degraded_B.board2LocalState);
+//			printSetPoint(&Board2Degraded_B.setPoint);
 			cycle_count = 0;
 		}
 

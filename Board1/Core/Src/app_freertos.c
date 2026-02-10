@@ -61,7 +61,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 typedef StaticTimer_t osStaticTimerDef_t;
 typedef StaticEventGroup_t osStaticEventGroupDef_t;
 /* USER CODE BEGIN PTD */
-
+extern volatile uint32_t t0;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -405,7 +405,10 @@ void StartSupervisor(void *argument)
 //			Board1_U.batteryLevel = 40;
 //		}
 
-		//timer_start(&timerSupervisor);
+
+
+		t0 = DWT_Begin();
+		timer_start(&timerSupervisor);
 
 		do {
 			Board1_step();
@@ -414,7 +417,8 @@ void StartSupervisor(void *argument)
 		} while (Board1_Y.supervision_ended != 1);
 
 		/* STOP TIMER FOR MONITORING WCET */
-		//timer_reset(&timerSupervisor);
+
+		timer_reset(&timerSupervisor);
 
 		/* FINALIZING DECISION */
 		actuate_white_leds();
@@ -434,8 +438,8 @@ void StartSupervisor(void *argument)
 
 		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
 			cycle_count = 0;
-			printGlobalState(&Board1_Y.board1GlobalState);
-			printDecision(&Board1_Y.board1Decision);
+//			printGlobalState(&Board1_Y.board1GlobalState);
+//			printDecision(&Board1_Y.board1Decision);
 		}
 
 
@@ -480,15 +484,15 @@ void StartReadTemperature(void *argument)
 
 #if REAL_TASK
 
-		float temp_val = 0.0f;
-		if (temp_ky028_read_temperature(&temp_sensor, &temp_val) == 0) {
-			task_temperature = (Temperature) temp_val;
-			temperature_read_failed = 0;
-		} else {
-			task_temperature = -255.0f;
-			temperature_read_failed = 1;
-		}
-
+//		float temp_val = 0.0f;
+//		if (temp_ky028_read_temperature(&temp_sensor, &temp_val) == 0) {
+//			task_temperature = (Temperature) temp_val;
+//			temperature_read_failed = 0;
+//		} else {
+//			task_temperature = -255.0f;
+//			temperature_read_failed = 1;
+//		}
+		task_temperature = 32.3f; // Dummy value for testing
 #if PRINT_TASK
         printTemperature(task_temperature);
 #endif

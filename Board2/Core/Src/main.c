@@ -290,8 +290,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			timer_period_elapsed(&timerSupervisor, htim);
 			Board2_U.timeoutOccurred++;
 			timer_reset(&timerSupervisor);
+			HAL_GPIO_WritePin(LedDebug_GPIO_Port, LedDebug_Pin, GPIO_PIN_RESET);
 #if VERBOSE_DEBUG_IT == 1
-			printMsg("SupervisorB2 WCET exceeded!\n\n");
+			printMsg("E\n");
 #endif
 		}
 	}
