@@ -188,10 +188,6 @@ int main(void)
 	Motors_StartAllPwm();
 	Motors_SetDefaultCcr(757);
 
-	while(1){
-
-	}
-
 	for (int i = 0; i < N_MOTORS; i++){
 		MotorControl_SetReferenceRPM(&motors[i], 0.0f);
 		MotorControl_OpenLoopActuate(&motors[i]);

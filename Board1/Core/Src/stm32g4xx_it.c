@@ -210,11 +210,19 @@ void TIM6_DAC_IRQHandler(void)
 void TIM7_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_DAC_IRQn 0 */
-
+    #if SEGGER_BUILD
+    SEGGER_SYSVIEW_RecordEnterISR();
+    #endif
   /* USER CODE END TIM7_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_DAC_IRQn 1 */
-
+    #if SEGGER_BUILD
+    if (SCB->ICSR & SCB_ICSR_PENDSVSET_Msk) {
+        SEGGER_SYSVIEW_RecordExitISRToScheduler();
+    } else {
+        SEGGER_SYSVIEW_RecordExitISR();
+    }
+    #endif
   /* USER CODE END TIM7_DAC_IRQn 1 */
 }
 
