@@ -96,17 +96,22 @@ extern osEventFlagsId_t flagsOSHandle;
 #include "event_flags_constant.h"
 
 void enterDegraded(){
+	printMsg("Entering degraded mode...\n");
+	killTasks();
+	killPeripherals();
 	osEventFlagsSet(flagsOSHandle, FLAG_DEGRADED);
     (void)osThreadTerminate(osThreadGetId());
 }
 
 
 void enterEmergency(){
+	printMsg("Entering emergency mode...\n");
     killTasks();
     killPeripherals();
 }
 
 void enterFaulty(){
+	printMsg("Entering faulty mode...\n");
     killTasks();
     killPeripherals();
 }

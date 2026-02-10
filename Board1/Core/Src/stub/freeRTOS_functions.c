@@ -106,19 +106,23 @@ static inline void killPeripherals(void)
 
 
 void enterDegraded(){
+	printMsg("Entering degraded mode...\n");
     killTasks();
     killPeripherals();
     (void)osThreadTerminate(osThreadGetId());
+
 }
 
 
 void enterEmergency(){
+	printMsg("Entering emergency mode...\n");
     killTasks();
     killPeripherals();
     (void)osThreadTerminate(osThreadGetId());
 }
 
 void enterFaulty(){
+	printMsg("Entering faulty mode...\n");
     killTasks();
     killPeripherals();
     (void)osThreadTerminate(osThreadGetId());
