@@ -1,9 +1,25 @@
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * @file motor_constants.h
- * @brief Definizione delle costanti, macro e modalità operative del sistema di controllo.
+ * @brief Constants, macros and operating-mode parameters for the motor control system.
  *
- * Questo file contiene enumerazioni, costanti e macro utilizzate per la gestione
- * del regolatore, della velocità, del duty cycle e dei limiti di saturazione.
+ * This file contains constants and macros used for regulator management,
+ * velocity conversion, duty-cycle mapping and saturation limits, as well as
+ * per-motor controller gains for every speed mode (fast, medium, slow).
  */
 #ifndef INC_CONSTANTS_MOTOR_CONSTANTS_H_
 #define INC_CONSTANTS_MOTOR_CONSTANTS_H_
@@ -12,8 +28,7 @@
 /*                               TUNING OPTIONS                               */
 /* -------------------------------------------------------------------------- */
 
-
-/** Frequenza di campionamento (Hz) */
+/** @brief Sampling rate in Hz. */
 static const float SAMPLING_RATE = 50.0f;
 
 
@@ -21,17 +36,16 @@ static const float SAMPLING_RATE = 50.0f;
 /*                               NON-TUNING AREA                              */
 /* -------------------------------------------------------------------------- */
 
-/** Numero totale di tick encoder per giro motore, considerando riduttore e segnali */
-static const float COUNTS = (51.0f * 12.0f * 2.0f * 2.0f);  // 2448
+/** @brief Total encoder tick count per motor revolution (includes gear ratio and signal edges). */
+static const float COUNTS = (51.0f * 12.0f * 2.0f * 2.0f);  /* 2448 */
 
-/** Periodo di campionamento (s) */
+/** @brief Sampling period in seconds. */
 static const float TS = 1.0f / SAMPLING_RATE;
 
-
-/** Velocità massima ammessa (rpm) */
+/** @brief Maximum allowed velocity (rpm). */
 static const float MAX_VELOCITY = 200.0f;
 
-/** Tick massimi attesi entro un periodo di campionamento */
+/** @brief Maximum expected ticks within one sampling period. */
 static const float MAX_TICKS = (1.0f / SAMPLING_RATE) *
                                ((MAX_VELOCITY / 60.0f) * COUNTS);
 
@@ -40,14 +54,14 @@ static const float MAX_TICKS = (1.0f / SAMPLING_RATE) *
 /*                             DUTY CYCLE LIMITS                              */
 /* -------------------------------------------------------------------------- */
 
-/** Valore minimo di input normalizzato */
+/** @brief Minimum normalised input value. */
 static const float IN_MIN = -100.0f;
-/** Valore massimo di input normalizzato */
+/** @brief Maximum normalised input value. */
 static const float IN_MAX = 100.0f;
 
-/** Duty cycle minimo convertito in tensione equivalente */
+/** @brief Minimum duty cycle converted to equivalent voltage. */
 static const float OUT_MIN = 56.8f;
-/** Duty cycle massimo convertito in tensione equivalente */
+/** @brief Maximum duty cycle converted to equivalent voltage. */
 static const float OUT_MAX = 94.6f;
 
 
@@ -55,26 +69,26 @@ static const float OUT_MAX = 94.6f;
 /*                                 SATURATION                                 */
 /* -------------------------------------------------------------------------- */
 
-/** Tensione massima applicabile */
+/** @brief Maximum applicable voltage. */
 static const float MAX_VOLT = 12.0f;
 
-/** Tensione minima applicabile */
+/** @brief Minimum applicable voltage. */
 static const float MIN_VOLT = -12.0f;
 
 /* -------------------------------------------------------------------------- */
 /*                            OPEN LOOP DC GAINS                              */
 /* -------------------------------------------------------------------------- */
 
-/** Guadagno statico (RPM/V) - Motore 1 (Front Left) */
+/** @brief DC gain (RPM/V) – Motor 1 (Front Left). */
 static const float DC_GAIN_MOT1 = 14.480f;
 
-/** Guadagno statico (RPM/V) - Motore 2 (Front Right) */
+/** @brief DC gain (RPM/V) – Motor 2 (Front Right). */
 static const float DC_GAIN_MOT2 = 14.200f;
 
-/** Guadagno statico (RPM/V) - Motore 3 (Rear Right) */
+/** @brief DC gain (RPM/V) – Motor 3 (Rear Right). */
 static const float DC_GAIN_MOT3 = 14.210f;
 
-/** Guadagno statico (RPM/V) - Motore 4 (Rear Left) */
+/** @brief DC gain (RPM/V) – Motor 4 (Rear Left). */
 static const float DC_GAIN_MOT4 = 14.510f;
 
 
@@ -87,59 +101,83 @@ static const float DC_GAIN_MOT4 = 14.510f;
 
 /* --------------------------- FAST MODE GAINS ------------------------------ */
 
-/** Front Left (Motore 1) */
-#define FAST_MOT1_K_ERR        (0.053587f)
-#define FAST_MOT1_K_LAST_ERR  (-0.017211f)
+/** @name Fast Mode – Motor 1 (Front Left)
+ *  @{ */
+#define FAST_MOT1_K_ERR        (0.053587f)   /**< @brief Proportional error gain. */
+#define FAST_MOT1_K_LAST_ERR  (-0.017211f)   /**< @brief Previous-error gain. */
+/** @} */
 
-/** Front Right (Motore 2) */
-#define FAST_MOT2_K_ERR        (0.053133f)
-#define FAST_MOT2_K_LAST_ERR  (-0.014643f)
+/** @name Fast Mode – Motor 2 (Front Right)
+ *  @{ */
+#define FAST_MOT2_K_ERR        (0.053133f)   /**< @brief Proportional error gain. */
+#define FAST_MOT2_K_LAST_ERR  (-0.014643f)   /**< @brief Previous-error gain. */
+/** @} */
 
-/** Rear Right (Motore 3) */
-#define FAST_MOT3_K_ERR        (0.062751f)
-#define FAST_MOT3_K_LAST_ERR  (-0.023033f)
+/** @name Fast Mode – Motor 3 (Rear Right)
+ *  @{ */
+#define FAST_MOT3_K_ERR        (0.062751f)   /**< @brief Proportional error gain. */
+#define FAST_MOT3_K_LAST_ERR  (-0.023033f)   /**< @brief Previous-error gain. */
+/** @} */
 
-/** Rear Left (Motore 4) */
-#define FAST_MOT4_K_ERR        (0.05454171f)
-#define FAST_MOT4_K_LAST_ERR  (-0.01553629f)
+/** @name Fast Mode – Motor 4 (Rear Left)
+ *  @{ */
+#define FAST_MOT4_K_ERR        (0.05454171f) /**< @brief Proportional error gain. */
+#define FAST_MOT4_K_LAST_ERR  (-0.01553629f) /**< @brief Previous-error gain. */
+/** @} */
 
 
 /* --------------------------- MEDIUM MODE GAINS ------------------------------ */
 
-/** Front Left (Motore 1) */
-#define MEDIUM_MOT1_K_ERR        (0.00322340f)
-#define MEDIUM_MOT1_K_LAST_ERR  (0.00322340f)
+/** @name Medium Mode – Motor 1 (Front Left)
+ *  @{ */
+#define MEDIUM_MOT1_K_ERR        (0.00322340f) /**< @brief Proportional error gain. */
+#define MEDIUM_MOT1_K_LAST_ERR  (0.00322340f)  /**< @brief Previous-error gain. */
+/** @} */
 
-/** Front Right (Motore 2) */
-#define MEDIUM_MOT2_K_ERR        (0.0032856f)
-#define MEDIUM_MOT2_K_LAST_ERR  (0.0032856f)
+/** @name Medium Mode – Motor 2 (Front Right)
+ *  @{ */
+#define MEDIUM_MOT2_K_ERR        (0.0032856f)  /**< @brief Proportional error gain. */
+#define MEDIUM_MOT2_K_LAST_ERR  (0.0032856f)   /**< @brief Previous-error gain. */
+/** @} */
 
-/** Rear Right (Motore 3) */
-#define MEDIUM_MOT3_K_ERR        (0.0032532f)
-#define MEDIUM_MOT3_K_LAST_ERR  (0.0032532f)
+/** @name Medium Mode – Motor 3 (Rear Right)
+ *  @{ */
+#define MEDIUM_MOT3_K_ERR        (0.0032532f)  /**< @brief Proportional error gain. */
+#define MEDIUM_MOT3_K_LAST_ERR  (0.0032532f)   /**< @brief Previous-error gain. */
+/** @} */
 
-/** Rear Left (Motore 4) */
-#define MEDIUM_MOT4_K_ERR        (0.0032173f)
-#define MEDIUM_MOT4_K_LAST_ERR  (0.0032173f)
+/** @name Medium Mode – Motor 4 (Rear Left)
+ *  @{ */
+#define MEDIUM_MOT4_K_ERR        (0.0032173f)  /**< @brief Proportional error gain. */
+#define MEDIUM_MOT4_K_LAST_ERR  (0.0032173f)   /**< @brief Previous-error gain. */
+/** @} */
 
 
 /* --------------------------- SLOW MODE GAINS ------------------------------ */
 
-/** Front Left (Motore 1) */
-#define SLOW_MOT1_K_ERR        (0.0008642f)
-#define SLOW_MOT1_K_LAST_ERR  (0.0008642f)
+/** @name Slow Mode – Motor 1 (Front Left)
+ *  @{ */
+#define SLOW_MOT1_K_ERR        (0.0008642f) /**< @brief Proportional error gain. */
+#define SLOW_MOT1_K_LAST_ERR  (0.0008642f)  /**< @brief Previous-error gain. */
+/** @} */
 
-/** Front Right (Motore 2) */
-#define SLOW_MOT2_K_ERR        (0.0008812f)
-#define SLOW_MOT2_K_LAST_ERR  (0.0008812f)
+/** @name Slow Mode – Motor 2 (Front Right)
+ *  @{ */
+#define SLOW_MOT2_K_ERR        (0.0008812f) /**< @brief Proportional error gain. */
+#define SLOW_MOT2_K_LAST_ERR  (0.0008812f)  /**< @brief Previous-error gain. */
+/** @} */
 
-/** Rear Right (Motore 3) */
-#define SLOW_MOT3_K_ERR        (0.0008812f)
-#define SLOW_MOT3_K_LAST_ERR  (0.0008812f)
+/** @name Slow Mode – Motor 3 (Rear Right)
+ *  @{ */
+#define SLOW_MOT3_K_ERR        (0.0008812f) /**< @brief Proportional error gain. */
+#define SLOW_MOT3_K_LAST_ERR  (0.0008812f)  /**< @brief Previous-error gain. */
+/** @} */
 
-/** Rear Left (Motore 4) */
-#define SLOW_MOT4_K_ERR        (0.0008642f)
-#define SLOW_MOT4_K_LAST_ERR  (0.0008642f)
+/** @name Slow Mode – Motor 4 (Rear Left)
+ *  @{ */
+#define SLOW_MOT4_K_ERR        (0.0008642f) /**< @brief Proportional error gain. */
+#define SLOW_MOT4_K_LAST_ERR  (0.0008642f)  /**< @brief Previous-error gain. */
+/** @} */
 
 
 #endif /* INC_CONSTANTS_MOTOR_CONSTANTS_H_ */
