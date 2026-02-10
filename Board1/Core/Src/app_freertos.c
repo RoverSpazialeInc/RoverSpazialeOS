@@ -211,6 +211,10 @@ static void periodic_wait(uint32_t *next_release, uint32_t period_ticks,
 		volatile uint32_t *miss_counter);
 
 /* DECISION FUNCTIONS */
+static inline void compute_sensors_validity(uint8_t *out_validity);
+static inline void compute_deadline_misses(uint8_t *out_deadline);
+static inline void copy_sensor_inputs(BUS_Speed *out_speed,
+		Temperature *out_temperature, BatteryLevel *out_batteryLevel);
 static inline void actuate_white_leds(void);
 static inline void change_set_point(void);
 static inline void change_regulator(void);
@@ -378,33 +382,22 @@ void StartSupervisor(void *argument)
 	/* Infinite loop */
 	for (;;) {
 
-		/* Convert singular errors into global flags for the Simulink model */
-		uint8_t temp = 0;
-		temp |= (encoder_read_failed & 0x01) << 0;
-		temp |= (temperature_read_failed     & 0x01) << 1;
-		temp |= (battery_read_failed        & 0x01) << 2;
-		//Board1_U.areSensorsValid = temp;
+		compute_sensors_validity(&Board1_U.areSensorsValid);
+		compute_deadline_misses(&Board1_U.deadlineOccurred);
+
+		Board1_U.areSensorsValid = 0;
+		Board1_U.deadlineOccurred = 0;
 
 #if ENTER_DEGRADED_MODE
 		// In this way the boards will dedice together to enter in degraded mode
 		Board1_U.areSensorsValid = 1;
 #endif
 
-		/* Clear previous error flags */
-		encoder_read_failed = 0;
-		temperature_read_failed = 0;
-		battery_read_failed = 0;
-
 		/* Copy task variables into Simulink model inputs */
-		Board1_U.speed = task_speed;
-		Board1_U.temperature = task_temperature;
-		Board1_U.batteryLevel = task_batteryLevel;
+		copy_sensor_inputs(&Board1_U.speed,
+				&Board1_U.temperature, &Board1_U.batteryLevel);
 
 		/* START TIMER FOR MONITORING WCET */
-//		if (Board1_U.batteryLevel <= 23) {
-//			Board1_U.batteryLevel = 40;
-//		}
-
 		//timer_start(&timerSupervisor);
 
 		do {
@@ -665,6 +658,51 @@ static void periodic_wait(uint32_t *next_release, uint32_t period_ticks,
 
 
 /* DECISION FUNCTIONS */
+
+static inline void compute_sensors_validity(uint8_t *out_validity) {
+	/* Convert singular errors into global flags for the Simulink model */
+	uint8_t temp = 0;
+	temp |= (encoder_read_failed      & 0x01) << 0;
+	temp |= (temperature_read_failed  & 0x01) << 1;
+	temp |= (battery_read_failed      & 0x01) << 2;
+	*out_validity = temp;
+
+	/* Clear previous error flags */
+	encoder_read_failed = 0;
+	temperature_read_failed = 0;
+	battery_read_failed = 0;
+}
+
+static inline void compute_deadline_misses(uint8_t *out_deadline) {
+	/* Convert non-zero miss counters into a bitmask for the Simulink model */
+	uint8_t temp = 0;
+
+	if (MissPID != 0) {
+		temp |= (1u << 0);
+		MissPID = 0;
+	}
+	if (MissSupervisor != 0) {
+		temp |= (1u << 1);
+		MissSupervisor = 0;
+	}
+	if (MissReadTemperature != 0) {
+		temp |= (1u << 2);
+		MissReadTemperature = 0;
+	}
+	if (MissReadBattery != 0) {
+		temp |= (1u << 3);
+		MissReadBattery = 0;
+	}
+
+	*out_deadline = temp;
+}
+
+static inline void copy_sensor_inputs(BUS_Speed *out_speed,
+		Temperature *out_temperature, BatteryLevel *out_batteryLevel) {
+	*out_speed = task_speed;
+	*out_temperature = task_temperature;
+	*out_batteryLevel = task_batteryLevel;
+}
 
 static inline void actuate_white_leds(void) {
 	A4WD3_White_Set(&led_left, Board1_Y.board1Decision.leds.white.left);

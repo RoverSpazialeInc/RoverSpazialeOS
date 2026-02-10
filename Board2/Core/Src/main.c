@@ -165,7 +165,7 @@ int main(void)
 	Board2_U.sonar = (BUS_Sonar ) { 0, 0, 0 };
 	Board2_U.areSensorsValid = 0;
 	Board2_U.timeoutOccurred = 0;
-	Board2Degraded_U.deadlineOccurred = 0;
+	Board2_U.deadlineOccurred = 0;
 
 	Board2Degraded_initialize();
 	Board2Degraded_U.remoteController = (BUS_RemoteController ) { 0, 0, 0 };
