@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'MotorsHealth'.
  *
- * Model version                  : 20.12
+ * Model version                  : 21.0
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Mon Feb  9 11:34:38 2026
+ * C/C++ source code generated on : Wed Feb 11 14:38:58 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -238,6 +238,7 @@ void MotorsHealth_UpdateMotorsHealth(const BUS_SetPoint *rtu_setPoint, const
 
   switch (MotorsHealth_DW.bitsForTID1.is_LF_Motor) {
    case MotorsHealth_IN_KeepMonitoring:
+    *rty_LF_HealthMotor = MOTOR_OK;
     if ((MotorsHealth_DW.LF_resultCheck == ERROR_TARGET_NOT_REACHED) ||
         ((MotorsHealth_DW.setPoint_leftAxis_prev !=
           MotorsHealth_DW.setPoint_leftAxis_start) ||
@@ -260,6 +261,8 @@ void MotorsHealth_UpdateMotorsHealth(const BUS_SetPoint *rtu_setPoint, const
 
    default:
     /* case IN_Motor_OK: */
+    *rty_LF_HealthMotor = MOTOR_OK;
+
     /*   */
     if ((MotorsHealth_DW.setPoint_leftAxis_prev !=
          MotorsHealth_DW.setPoint_leftAxis_start) ||

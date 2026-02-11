@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'ActionsModel'.
  *
- * Model version                  : 8.16
+ * Model version                  : 8.19
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Mon Feb  9 11:34:04 2026
+ * C/C++ source code generated on : Wed Feb 11 14:38:40 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -66,7 +66,7 @@
 #define ActionsMode_IN_BW_RR_SafeAction ((uint8_T)2U)
 #define ActionsMode_IN_BW_RR_UserAction ((uint8_T)3U)
 #define ActionsMode_IN_FW_BH_RotateLeft ((uint8_T)1U)
-#define ActionsMode_IN_FW_BrakingHard_l ((uint8_T)4U)
+#define ActionsMode_IN_FW_BrakingHard_l ((uint8_T)3U)
 #define ActionsMode_IN_FW_BrakingSmooth ((uint8_T)5U)
 #define ActionsMode_IN_FW_SL_RotateLeft ((uint8_T)6U)
 #define ActionsMode_IN_FW_SL_StopMotors ((uint8_T)7U)
@@ -82,7 +82,7 @@
 #define ActionsModel_IN_Backward       ((uint8_T)1U)
 #define ActionsModel_IN_BrakingHard    ((uint8_T)2U)
 #define ActionsModel_IN_BrakingSmooth  ((uint8_T)3U)
-#define ActionsModel_IN_FW_BrakingHard ((uint8_T)3U)
+#define ActionsModel_IN_FW_BrakingHard ((uint8_T)4U)
 #define ActionsModel_IN_FW_SafeAction  ((uint8_T)2U)
 #define ActionsModel_IN_FW_UserAction  ((uint8_T)3U)
 #define ActionsModel_IN_Forward        ((uint8_T)4U)
@@ -464,7 +464,7 @@ static void enter_internal_BW_FW_SafeAction(const Gyroscope *rtu_gyroscope,
 {
   switch (*rty_safeAction) {
    case SA_BRAKING_HARD:
-    ActionsModel_DW.is_BW_FW_SafeAction = ActionsModel_IN_FW_BrakingHard;
+    ActionsModel_DW.is_BW_FW_SafeAction = ActionsMode_IN_FW_BrakingHard_l;
     *rty_roverAction = RA_BRAKING_HARD;
 
     /*  Set point */
@@ -516,6 +516,7 @@ static void ActionsModel_BW_Forward(const ENUM_UserAction *rtu_currentUserAction
   uint8_T rotation_ended;
   switch (ActionsModel_DW.is_BW_Forward) {
    case Action_IN_BW_FW_EndedSafeAction:
+    *rty_safeAction = ActionsMod_checkSafetyToForward(rtu_sonar->front);
     if (*rtu_currentUserAction != UA_BACKWARD) {
       ActionsModel_DW.is_BW_Forward = ActionsMod_IN_NO_ACTIVE_CHILD_k;
       ActionsModel_DW.exit_port_index_BW_Forward = 2U;
@@ -544,8 +545,6 @@ static void ActionsModel_BW_Forward(const ENUM_UserAction *rtu_currentUserAction
       /*  Led */
       rty_redLeds->left = ActionsModel_B.leftLed;
       rty_redLeds->right = ActionsModel_B.rightLed;
-    } else {
-      *rty_safeAction = ActionsMod_checkSafetyToForward(rtu_sonar->front);
     }
     break;
 
@@ -582,6 +581,15 @@ static void ActionsModel_BW_Forward(const ENUM_UserAction *rtu_currentUserAction
      case ActionsModel_IN_FW_BrakingHard:
       if (ActionsModel_areAllSpeedsZero(rtu_speed->motor1, rtu_speed->motor2,
            rtu_speed->motor3, rtu_speed->motor4, ActionsModel_NO_SPEED) != 0) {
+        *rty_safeAction = ActionsMod_checkSafetyToForward(rtu_sonar->front);
+        ActionsModel_DW.is_BW_FW_SafeAction = ActionsMod_IN_NO_ACTIVE_CHILD_k;
+        ActionsModel_DW.exit_port_index_BW_FW_SafeActio = 2U;
+      }
+      break;
+
+     case ActionsMode_IN_FW_BrakingHard_l:
+      if (ActionsModel_areAllSpeedsZero(rtu_speed->motor1, rtu_speed->motor2,
+           rtu_speed->motor3, rtu_speed->motor4, ActionsModel_NO_SPEED) != 0) {
         if (rtu_sonar->left > ActionsModel_BRAKE_DISTANCE) {
           ActionsModel_DW.accumulated_change = 0;
           ActionsModel_DW.is_BW_FW_SafeAction = ActionsMode_IN_FW_BH_RotateLeft;
@@ -612,18 +620,9 @@ static void ActionsModel_BW_Forward(const ENUM_UserAction *rtu_currentUserAction
       }
       break;
 
-     case ActionsMode_IN_FW_BrakingHard_l:
-      if (ActionsModel_areAllSpeedsZero(rtu_speed->motor1, rtu_speed->motor2,
-           rtu_speed->motor3, rtu_speed->motor4, ActionsModel_NO_SPEED) != 0) {
-        *rty_safeAction = ActionsMod_checkSafetyToForward(rtu_sonar->front);
-        ActionsModel_DW.is_BW_FW_SafeAction = ActionsMod_IN_NO_ACTIVE_CHILD_k;
-        ActionsModel_DW.exit_port_index_BW_FW_SafeActio = 2U;
-      }
-      break;
-
      case ActionsMode_IN_FW_BrakingSmooth:
       if (*rty_safeAction == SA_BRAKING_HARD) {
-        ActionsModel_DW.is_BW_FW_SafeAction = ActionsMode_IN_FW_BrakingHard_l;
+        ActionsModel_DW.is_BW_FW_SafeAction = ActionsModel_IN_FW_BrakingHard;
         *rty_roverAction = RA_BRAKING_HARD;
 
         /*  Set point */
@@ -1108,7 +1107,7 @@ static void Ac_enter_internal_FW_SafeAction(const Gyroscope *rtu_gyroscope,
 {
   switch (*rty_safeAction) {
    case SA_BRAKING_HARD:
-    ActionsModel_DW.is_FW_SafeAction = ActionsModel_IN_FW_BrakingHard;
+    ActionsModel_DW.is_FW_SafeAction = ActionsMode_IN_FW_BrakingHard_l;
     *rty_roverAction = RA_BRAKING_HARD;
 
     /*  Set point */
@@ -1523,6 +1522,7 @@ static void ActionsModel_Forward(const ENUM_UserAction *rtu_currentUserAction,
     /* RootInportFunctionCallGenerator generated from: '<Root>/ComputeRoverAction' incorporates:
      *  Chart: '<Root>/RoverAction'
      */
+    *rty_safeAction = ActionsMod_checkSafetyToForward(rtu_sonar->front);
     if (*rtu_currentUserAction != UA_FORWARD) {
       ActionsModel_DW.is_Forward = ActionsMod_IN_NO_ACTIVE_CHILD_k;
       ActionsModel_DW.exit_port_index_Forward = 2U;
@@ -1551,8 +1551,6 @@ static void ActionsModel_Forward(const ENUM_UserAction *rtu_currentUserAction,
       /*  Led */
       rty_redLeds->left = ActionsModel_B.leftLed;
       rty_redLeds->right = ActionsModel_B.rightLed;
-    } else {
-      *rty_safeAction = ActionsMod_checkSafetyToForward(rtu_sonar->front);
     }
 
     /* End of Outputs for RootInportFunctionCallGenerator generated from: '<Root>/ComputeRoverAction' */
@@ -1618,7 +1616,7 @@ static void ActionsModel_Forward(const ENUM_UserAction *rtu_currentUserAction,
       }
       break;
 
-     case ActionsModel_IN_FW_BrakingHard:
+     case ActionsMode_IN_FW_BrakingHard_l:
       /* RootInportFunctionCallGenerator generated from: '<Root>/ComputeRoverAction' incorporates:
        *  Chart: '<Root>/RoverAction'
        */
@@ -1661,7 +1659,7 @@ static void ActionsModel_Forward(const ENUM_UserAction *rtu_currentUserAction,
        *  Chart: '<Root>/RoverAction'
        */
       if (rtu_sonar->front < ActionsModel_CRITICAL_DISTANCE) {
-        ActionsModel_DW.is_FW_SafeAction = ActionsModel_IN_FW_BrakingHard;
+        ActionsModel_DW.is_FW_SafeAction = ActionsMode_IN_FW_BrakingHard_l;
         *rty_roverAction = RA_BRAKING_HARD;
 
         /*  Set point */
@@ -2097,8 +2095,6 @@ static void ActionsModel_RotateLeft(const ENUM_UserAction *rtu_currentUserAction
           /*  Set point */
           rty_setPoint->rightAxis = 0.0F;
           rty_setPoint->leftAxis = 0.0F;
-
-          /*  Led */
         }
 
         /* End of Outputs for RootInportFunctionCallGenerator generated from: '<Root>/ComputeRoverAction' */
@@ -2767,7 +2763,6 @@ void ActionsModel_ComputeRoverAction(const ENUM_UserAction
     break;
 
    case ActionsModel_IN_BrakingSmooth:
-    /*  [currentUserAction ~= ENUM_UserAction.UA_BRAKING_SMOOTH && currentUserAction ~= ENUM_UserAction.UA_NONE] */
     if (*rtu_currentUserAction != UA_BRAKING_SMOOTH) {
       switch (*rtu_currentUserAction) {
        case UA_BACKWARD:
