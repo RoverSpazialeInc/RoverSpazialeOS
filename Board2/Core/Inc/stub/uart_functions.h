@@ -51,21 +51,6 @@ void setComunicationHandler(UART_HandleTypeDef* uart_handler);
  */
 UART_HandleTypeDef * getComunicationHandler();
 
-/**
- * @brief Abort any ongoing UART receive operation.
- */
-void abortReceive();
-
-/**
- * @brief Abort any ongoing UART transmit operation.
- */
-void abortTransmit();
-
-/**
- * @brief Abort both ongoing UART transmit and receive operations.
- */
-void abortTransmitAndReceive();
-
 /** @} */ /* end of UartHandler */
 
 /** @defgroup UartTransmission UART Transmission

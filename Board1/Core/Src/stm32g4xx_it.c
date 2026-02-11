@@ -327,15 +327,5 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
 	}
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-	UART_HandleTypeDef *h = getComunicationHandler();
-	if (h != NULL && huart->Instance == h->Instance) {
-		if (trasmissionStatus == 0) {
-			trasmissionStatus = 1;
-		}
-		return;
-	}
-}
-
 
 /* USER CODE END 1 */
