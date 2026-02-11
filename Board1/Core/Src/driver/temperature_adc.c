@@ -31,9 +31,9 @@
  * @param temp Pointer to the sensor structure.
  * @param hadc Pointer to the ADC handle (must be configured for the internal temp sensor channel).
  */
-void temp_internal_init(temp_internal_t* temp, ADC_HandleTypeDef* hadc) {
+void temp_internal_init(temp_internal_t* temp, ADC_HandleTypeDef* hadc, float vdd_mv) {
     temp->hadc = hadc;
-    temp->adc_resolution = 4095;  // For 12-bit ADC
+    temp->vdd_mv = vdd_mv;
 }
 
 /**
@@ -51,6 +51,9 @@ int8_t temp_internal_read_temperature(temp_internal_t* temp, float* temperature)
         return TEMP_DRIVER_FAIL;
     }
 
+    // Perform ADC calibration before conversion
+    HAL_ADCEx_Calibration_Start(temp->hadc, ADC_SINGLE_ENDED);
+
     // Start ADC conversion for internal temperature sensor
     HAL_ADC_Start(temp->hadc);
 
@@ -65,8 +68,17 @@ int8_t temp_internal_read_temperature(temp_internal_t* temp, float* temperature)
 
     HAL_ADC_Stop(temp->hadc);
 
-    // Convert ADC value to temperature using linear conversion
-    float temp_c = (adc_value / (float)temp->adc_resolution) * 100.0f;
+    // Read factory calibration values
+    int32_t ts_cal1 = (int32_t)(*TS_CAL1_ADDR);
+    int32_t ts_cal2 = (int32_t)(*TS_CAL2_ADDR);
+
+    // Compensate for VDD voltage difference
+    // Factory calibration was done at 3.0V; normalize the raw reading to 3.0V
+    float ts_data_normalized = (float)adc_value * (temp->vdd_mv / VREFINT_CAL_VREF);
+
+    // Calculate temperature using linear interpolation (RM0440 Section 21.4.31)
+    float slope = (TEMPSENSOR_CAL2_TEMP - TEMPSENSOR_CAL1_TEMP) / (float)(ts_cal2 - ts_cal1);
+    float temp_c = slope * (ts_data_normalized - (float)ts_cal1) + TEMPSENSOR_CAL1_TEMP;
 
     // Limit value to supported range
     if (temp_c < MIN_TEMPERATURE) {

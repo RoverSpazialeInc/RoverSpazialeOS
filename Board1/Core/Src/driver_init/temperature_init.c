@@ -42,6 +42,5 @@ temp_internal_t temp_sensor;
  * @retval None
  */
 void temperature_sensor_init(){
-	temp_internal_init(&temp_sensor, &hadc1);
-
+	temp_internal_init(&temp_sensor, &hadc1, 3278.0f);  // VDD = 3.278V
 }

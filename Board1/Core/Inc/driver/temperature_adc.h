@@ -33,12 +33,21 @@
 #define TEMP_DRIVER_OK          0
 #define TEMP_DRIVER_FAIL       -1
 
+// Factory calibration addresses (STM32G4 specific, see datasheet)
+#define TS_CAL1_ADDR           ((uint16_t*) 0x1FFF75A8)  /**< TS_CAL1 calibration value address */
+#define TS_CAL2_ADDR           ((uint16_t*) 0x1FFF75CA)  /**< TS_CAL2 calibration value address */
+
+// Calibration temperatures and reference voltage
+#define TEMPSENSOR_CAL1_TEMP   30.0f     /**< Temperature at which TS_CAL1 was measured */
+#define TEMPSENSOR_CAL2_TEMP   130.0f    /**< Temperature at which TS_CAL2 was measured */
+#define VREFINT_CAL_VREF       3000.0f   /**< VDD voltage (mV) at which factory calibration was performed */
+
 /**
  * @brief Structure to hold internal temperature sensor configuration and state.
  */
 typedef struct {
     ADC_HandleTypeDef* hadc;    /**< Pointer to ADC handle (configured for internal temp sensor) */
-    uint32_t adc_resolution;    /**< 4095 for 12-bit, 1023 for 10-bit */
+    float vdd_mv;               /**< Actual VDD voltage in millivolts */
 } temp_internal_t;
 
 // Initialization functions
@@ -48,8 +57,9 @@ typedef struct {
  *
  * @param temp Pointer to the sensor structure.
  * @param hadc Pointer to the ADC handle (configured for internal temp sensor channel).
+ * @param vdd_mv Actual VDD supply voltage in millivolts (e.g. 3300.0f for 3.3V).
  */
-void temp_internal_init(temp_internal_t* temp, ADC_HandleTypeDef* hadc);
+void temp_internal_init(temp_internal_t* temp, ADC_HandleTypeDef* hadc, float vdd_mv);
 
 // Reading functions
 
