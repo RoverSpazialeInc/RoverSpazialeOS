@@ -7,6 +7,7 @@
 #include "i2c.h"
 #include "uart_functions.h"
 #include "print.h"
+#include "motors_init.h"
 
 // Extern thread handles
 extern osThreadId_t ReadControllerHandle;
@@ -58,11 +59,12 @@ static inline void abortUartLinks(void)
 
 static inline void stopTimers(void)
 {
-    (void)HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_ALL);
-    (void)HAL_TIM_Base_Stop_IT(&htim1);
+	Motors_SetDefaultCcr(757);
 
     (void)HAL_TIM_IC_Stop_IT(&htim2, TIM_CHANNEL_ALL);
     (void)HAL_TIM_Base_Stop_IT(&htim2);
+
+    (void)HAL_TIM_Base_Stop_IT(&htim7);
 }
 
 static inline void stopI2cBuses(void)

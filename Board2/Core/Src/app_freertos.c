@@ -665,14 +665,14 @@ void StartSupervisor(void *argument)
 	    system_phase = WORKING_PHASE;
 
 		/* START TIMER FOR MONITORING WCET */
-		//timer_start(&timerSupervisor);
+		timer_start(&timerSupervisor);
 
 		do {
 			Board2_step();
 		} while (Board2_Y.supervision_ended != 1);
 
 		/* STOP TIMER FOR MONITORING WCET */
-		//timer_reset(&timerSupervisor);
+		timer_reset(&timerSupervisor);
 
 		system_phase = SYNCHRONIZATION_SUPERVISOR;
 
