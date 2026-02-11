@@ -23,21 +23,6 @@ UART_HandleTypeDef* getComunicationHandler() {
 	return current_handler;
 }
 
-void abortReceive() {
-	HAL_UART_AbortReceive(current_handler);
-	HAL_UART_AbortReceive_IT(current_handler);
-}
-
-void abortTransmit() {
-	HAL_UART_AbortTransmit(current_handler);
-	HAL_UART_AbortTransmit_IT(current_handler);
-}
-
-void abortTransmitAndReceive() {
-	HAL_UART_Abort(current_handler);
-	HAL_UART_Abort_IT(current_handler);
-}
-
 /* Trasmissione */
 
 uint8_t checkRTR(void) {
@@ -50,7 +35,7 @@ uint8_t checkRTR(void) {
 	}
 }
 
-void UART_TransmitIT(uint8_t *pData, size_t size) {
+void TransmitIT(uint8_t *pData, size_t size) {
 
 	/* Test CRC, si cambia o un byte del CRC oppure del buffer*/
 //	static uint8_t jitter;
@@ -88,7 +73,7 @@ void resetRTR() {
 	HAL_GPIO_WritePin(RTR_OUT_GPIO_Port, RTR_OUT_Pin, GPIO_PIN_RESET);
 }
 
-uint8_t UART_ReceiveIT(uint8_t *pData, size_t size) {
+uint8_t ReceiveIT(uint8_t *pData, size_t size) {
 	//pulisco i falg
 	receivedFlag = 0;
 	errorReceiveFlag = 0;
@@ -130,12 +115,12 @@ uint8_t errorReceived(void) {
 	return errorReceiveFlag;
 }
 
-void UART_ReceiveAckIT(void) {
+void ReceiveAckIT(void) {
 	received_ack = 0; 							// Pulizia
-	UART_ReceiveIT(&received_ack, 1);
+	ReceiveIT(&received_ack, 1);
 }
 
-uint8_t UART_CheckAck(void) {
+uint8_t CheckAck(void) {
 	if (received_ack == ack) {
 		return 1;
 	} else if (received_ack == nack) {
@@ -145,23 +130,23 @@ uint8_t UART_CheckAck(void) {
 	}
 }
 
-//void UART_SendAckIT(void) {
+//void SendAckIT(void) {
 //	static uint32_t count_ack = 0;
 //	// se count ack è pari manda l'ack altirmenti manda il nack
 //
 //	if (count_ack % 2 == 0){
-//		UART_TransmitIT((uint8_t*) &nack, 1);
+//		TransmitIT((uint8_t*) &nack, 1);
 //	} else {
-//		UART_TransmitIT((uint8_t*) &ack, 1);
+//		TransmitIT((uint8_t*) &ack, 1);
 //	}
 //	count_ack++;
 //}
 
-void UART_SendAckIT(void) {
-	UART_TransmitIT((uint8_t*) &ack, 1);
+void SendAckIT(void) {
+	TransmitIT((uint8_t*) &ack, 1);
 }
 
-void UART_SendNackIT(void) {
-	UART_TransmitIT((uint8_t*) &nack, 1);
+void SendNackIT(void) {
+	TransmitIT((uint8_t*) &nack, 1);
 }
 
