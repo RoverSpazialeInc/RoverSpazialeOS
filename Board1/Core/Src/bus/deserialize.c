@@ -1,8 +1,39 @@
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file deserialize.c
+ * @brief Deserialization functions for bus data structures.
+ *
+ * Implements deserialization of raw byte buffers into typed bus structures
+ * such as local board states, global state, and decision frames.
+ */
+
 #include "deserialize.h"
 
 #include <string.h>     /* memcpy */
 
 
+/**
+ * @brief Deserialize a byte buffer into a BUS_LocalStateB1 structure.
+ *
+ * @param[in]  buf   Pointer to the source byte buffer.
+ * @param[in]  len   Length of the buffer in bytes.
+ * @param[out] state Pointer to the destination structure.
+ * @return 0 on success, -1 on invalid arguments or insufficient length.
+ */
 int deserializeLocalStateB1(const uint8_t *buf, size_t len, BUS_LocalStateB1 *state)
 {
     if (!buf || !state) return -1;
@@ -33,6 +64,14 @@ int deserializeLocalStateB1(const uint8_t *buf, size_t len, BUS_LocalStateB1 *st
     return 0;
 }
 
+/**
+ * @brief Deserialize a byte buffer into a BUS_LocalStateB2 structure.
+ *
+ * @param[in]  buf   Pointer to the source byte buffer.
+ * @param[in]  len   Length of the buffer in bytes.
+ * @param[out] state Pointer to the destination structure.
+ * @return 0 on success, -1 on invalid arguments or insufficient length.
+ */
 int deserializeLocalStateB2(const uint8_t *buf, size_t len, BUS_LocalStateB2 *state)
 {
     if (!buf || !state) return -1;
@@ -63,6 +102,17 @@ int deserializeLocalStateB2(const uint8_t *buf, size_t len, BUS_LocalStateB2 *st
     return 0;
 }
 
+/**
+ * @brief Deserialize a byte buffer into a BUS_GlobalState structure.
+ *
+ * Sequentially deserializes BUS_LocalStateB1 and BUS_LocalStateB2 from
+ * the buffer into the corresponding fields of the global state.
+ *
+ * @param[in]  buf   Pointer to the source byte buffer.
+ * @param[in]  len   Length of the buffer in bytes.
+ * @param[out] state Pointer to the destination structure.
+ * @return 0 on success, -1 on invalid arguments or insufficient length.
+ */
 int deserializeGlobalState(const uint8_t *buf, size_t len, BUS_GlobalState *state)
 {
     if (!buf || !state) return -1;
@@ -80,6 +130,15 @@ int deserializeGlobalState(const uint8_t *buf, size_t len, BUS_GlobalState *stat
     return 0;
 }
 
+/**
+ * @brief Unpack a single byte into a BUS_Leds structure.
+ *
+ * Extracts white and red LED states from the individual bits of the
+ * packed byte. Sanitizes invalid red LED values to RED_OFF.
+ *
+ * @param[in]  b Packed LED byte.
+ * @param[out] l Pointer to the destination BUS_Leds structure.
+ */
 static inline void unpackLedsByte(uint8_t b, BUS_Leds *l)
 {
     l->white.left  = (ENUM_StatusWhiteLed)((b >> 0) & 0x01u);
@@ -88,11 +147,22 @@ static inline void unpackLedsByte(uint8_t b, BUS_Leds *l)
     l->red.left    = (ENUM_StatusRedLed)((b >> 2) & 0x03u);
     l->red.right   = (ENUM_StatusRedLed)((b >> 4) & 0x03u);
 
-    /* sanifica se arrivano valori non validi */
+    /* sanitize invalid values */
     if (l->red.left  > RED_ON) l->red.left  = RED_OFF;
     if (l->red.right > RED_ON) l->red.right = RED_OFF;
 }
 
+/**
+ * @brief Deserialize a byte buffer into a BUS_Decision structure.
+ *
+ * Extracts enum fields, the set-point, and the packed LED byte from
+ * the source buffer into the decision structure.
+ *
+ * @param[in]  buf      Pointer to the source byte buffer.
+ * @param[in]  len      Length of the buffer in bytes.
+ * @param[out] decision Pointer to the destination structure.
+ * @return 0 on success, -1 on invalid arguments or insufficient length.
+ */
 int deserializeDecision(const uint8_t *buf, size_t len, BUS_Decision *decision)
 {
     if (!buf || !decision) return -1;
@@ -100,7 +170,7 @@ int deserializeDecision(const uint8_t *buf, size_t len, BUS_Decision *decision)
 
     size_t i = 0;
 
-    /* Enum: 1 byte ciascuno (ENUM_FRAME_SIZE) */
+    /* Enum: 1 byte each (ENUM_FRAME_SIZE) */
     uint8_t tmp;
 
     tmp = buf[i]; i += ENUM_FRAME_SIZE;
@@ -122,7 +192,7 @@ int deserializeDecision(const uint8_t *buf, size_t len, BUS_Decision *decision)
     memcpy(&decision->setPoint, &buf[i], BUS_SET_POINT_FRAME_SIZE);
     i += BUS_SET_POINT_FRAME_SIZE;
 
-    /* LED: 1 byte compattato */
+    /* LED: 1 packed byte */
     unpackLedsByte(buf[i++], &decision->leds);
 
     return 0;

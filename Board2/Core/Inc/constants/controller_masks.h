@@ -15,37 +15,40 @@
 
 /**
  * @file controller_masks.h
- * @brief Bitmask definitions for remote-controller button combinations.
+ * @brief Bitmask definitions for interpreting remote controller button states.
  *
- * Maps individual bits of the controller data word to specific rover
- * functions such as direction, braking, LED control and sonar enable/disable.
+ * Provides bitmask constants used to decode the button bitfield received
+ * from the remote controller. Masks cover direction combos, braking modes,
+ * LED toggles, and sonar disable flags.
  */
 
 #ifndef CONTROLLER_MASKS_H
 #define CONTROLLER_MASKS_H
 
-/** @brief Bitmask for the backward-drive button combination. */
+/** @defgroup ControllerMasks Remote Controller Bitmasks
+ *  @{
+ */
+
+/** @brief Bitmask for the backward direction combo. */
 #define BACKWARD_COMBO             256u
 
-/** @brief Bitmask for the smooth braking command. */
+/** @brief Bitmask for smooth braking mode. */
 #define BRAKING_SMOOTH_MASK         16u
-
-/** @brief Bitmask for the hard braking command. */
+/** @brief Bitmask for hard braking mode. */
 #define BRAKING_HARD_MASK           32u
 
 /** @brief Bitmask to toggle the left white LED. */
 #define WHITE_LEFT_LED_MASK         64u
-
 /** @brief Bitmask to toggle the right white LED. */
 #define WHITE_RIGHT_LED_MASK       128u
 
 /** @brief Bitmask to disable the left sonar sensor. */
 #define DISABLE_LEFT_SONAR           4u
-
 /** @brief Bitmask to disable the front sonar sensor. */
 #define DISABLE_FRONT_SONAR          8u
-
 /** @brief Bitmask to disable the right sonar sensor. */
 #define DISABLE_RIGHT_SONAR          2u
+
+/** @} */ /* end of ControllerMasks */
 
 #endif /* CONTROLLER_MASKS_H */
