@@ -82,3 +82,13 @@ void PadReceiver_RxCpltCallback(void) {
 void PadReceiver_ErrorCallback(void) {
     rx_status = PAD_RX_ERROR;    // Signal error
 }
+
+/**
+ * @brief  Aborts any ongoing I2C transfer for the Pad Receiver.
+ *         Sends a STOP condition on the bus to release it.
+ * @note   Should be called from the I2C error callback to recover
+ *         from bus errors (NACK, arbitration lost, etc.).
+ */
+void PadReceiver_Abort(void) {
+    HAL_I2C_Master_Abort_IT(&hi2c1, PAD_I2C_ADDRESS);
+}

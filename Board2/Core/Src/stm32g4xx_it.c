@@ -518,24 +518,28 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
 
-	switch ((uint32_t) hi2c->Instance) {
+    switch ((uint32_t) hi2c->Instance) {
 
-	case (uint32_t) I2C1:
-		PRINT_DBG("PadReceiver I2C ERROR: ");
-		PadReceiver_ErrorCallback(); // Optional, PollingServer uses OS flags
-		osEventFlagsSet(flagsOSHandle, FLAG_PAD_ERROR);
-		break;
+    case (uint32_t) I2C1:
+        PRINT_DBG("PadReceiver I2C ERROR: ");
+        PadReceiver_ErrorCallback();
+        osEventFlagsSet(flagsOSHandle, FLAG_PAD_ERROR);
+        /* Abort ongoing transfer via driver API */
+        PadReceiver_Abort();
+        break;
 
-	case (uint32_t) I2C3:
-		PRINT_DBG("MPU6050 I2C ERROR: ");
-		MPU6050_Error_Callback();  // Optional, PollingServer uses OS flags
-		osEventFlagsSet(flagsOSHandle, FLAG_GYRO_ERROR);
-		break;
+    case (uint32_t) I2C3:
+        PRINT_DBG("MPU6050 I2C ERROR: ");
+        MPU6050_Error_Callback();
+        osEventFlagsSet(flagsOSHandle, FLAG_GYRO_ERROR);
+        /* Abort ongoing transfer via driver API */
+        MPU6050_Abort(&hi2c3);
+        break;
 
-	default:
-		PRINT_DBG("Unknown I2C instance ERROR\r\n");
-		break;
-	}
+    default:
+        PRINT_DBG("Unknown I2C instance ERROR\r\n");
+        break;
+    }
 
 #if VERBOSE_DEBUG_IT
 

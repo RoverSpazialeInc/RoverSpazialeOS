@@ -63,8 +63,14 @@ void PadReceiver_Read(BUS_RemoteController* data);
 void PadReceiver_RxCpltCallback(void);
 
 /**
- * @brief Callback called in case of reception error (defined in pad_receiver.c).
+ * @brief  I2C Error Callback.
  */
 void PadReceiver_ErrorCallback(void);
+
+/**
+ * @brief  Aborts any ongoing I2C transfer for the Pad Receiver.
+ *         Sends a STOP condition on the bus to release it.
+ */
+void PadReceiver_Abort(void);
 
 #endif /* INC_DRIVER_PAD_RECEIVER_H_ */

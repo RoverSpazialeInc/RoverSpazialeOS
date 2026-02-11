@@ -142,4 +142,11 @@ void MPU6050_Process_Yaw_IT_Data(void);
  */
 void MPU6050_Error_Callback(void);
 
+/**
+ * @brief  Aborts any ongoing I2C transfer for the MPU6050.
+ *         Sends a STOP condition on the bus to release it.
+ * @param  I2Cx Pointer to the I2C handle used by the MPU6050
+ */
+void MPU6050_Abort(I2C_HandleTypeDef *I2Cx);
+
 #endif /* INC_GY521_H_ */

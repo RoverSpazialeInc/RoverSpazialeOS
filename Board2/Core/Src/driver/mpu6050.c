@@ -407,3 +407,14 @@ void MPU6050_Process_Yaw_IT_Data(void)
 void MPU6050_Error_Callback(void) {
     mpu_rx_status = MPU_RX_ERROR; // Signal error
 }
+
+/**
+ * @brief  Aborts any ongoing I2C transfer for the MPU6050.
+ *         Sends a STOP condition on the bus to release it.
+ * @param  I2Cx Pointer to the I2C handle used by the MPU6050
+ * @note   Should be called from the I2C error callback to recover
+ *         from bus errors (NACK, arbitration lost, etc.).
+ */
+void MPU6050_Abort(I2C_HandleTypeDef *I2Cx) {
+    HAL_I2C_Master_Abort_IT(I2Cx, MPU6050_ADDR);
+}
