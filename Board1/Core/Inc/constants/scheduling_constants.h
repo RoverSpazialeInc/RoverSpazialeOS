@@ -46,7 +46,7 @@
 /** @brief Supervisor task period in milliseconds (20 Hz). */
 #define T_SUPERVISOR           	50u
 /** @brief Supervisor task worst-case execution time in milliseconds. */
-#define WCET_SUPERVISOR_MS      15u
+#define WCET_SUPERVISOR_MS      20u
 /** @brief Supervisor task worst-case execution time in microseconds. */
 #define WCET_SUPERVISOR_US      MS_TO_US(WCET_SUPERVISOR_MS)
 /** @brief Supervisor task WCET alias. */
