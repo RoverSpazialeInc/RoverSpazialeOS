@@ -84,7 +84,7 @@
 
 /* USER CODE BEGIN PV */
 
-volatile system_phase_t system_phase = SYNCHRONIZATION_PHASE;
+volatile system_phase_t system_phase = SYNCHRONIZATION_START;
 
 timer_t timerSupervisor;
 

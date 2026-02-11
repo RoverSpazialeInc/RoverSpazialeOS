@@ -29,7 +29,8 @@
  * @brief Enumerates the operational phases of the system.
  */
 typedef enum {
-    SYNCHRONIZATION_PHASE = 0, /**< Initial inter-board synchronization phase. */
+    SYNCHRONIZATION_START = 0, /**< Initial inter-board synchronization phase. */
+	SYNCHRONIZATION_SUPERVISOR, /**< Synchronization completed, but not yet in working phase. */
     WORKING_PHASE              /**< Normal working phase after synchronization. */
 } system_phase_t;
 

@@ -81,6 +81,12 @@
 #define FLAG_DEGRADED               (1U << 13)
 /** @} */
 
+/** @name Flags for Supervisor Task
+ *  @{ */
+/** @brief Time to communicate bit(14) */
+#define FLAGS_SUPERVISOR_WAIT       (1U << 14)
+/** @} */
+
 /**
  * @brief Bitmask for all events the Polling Server waits on.
  *
