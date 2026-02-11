@@ -52,7 +52,6 @@
 #include "crc_functions.h"
 #include "uart_functions.h"
 #include "freeRTOS_functions.h"
-#include "redLeds_functions.h"
 
 /* Block signals (default storage) */
 typedef struct {
