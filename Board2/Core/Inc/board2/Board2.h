@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Board2'.
  *
- * Model version                  : 12.33
+ * Model version                  : 13.11
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Wed Feb 11 14:40:02 2026
+ * C/C++ source code generated on : Wed Feb 11 20:24:40 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -57,7 +57,7 @@
 typedef struct {
   BUS_SetPoint setPoint;               /* '<Root>/ActionsModel' */
   BUS_RedLeds redLeds;                 /* '<Root>/ActionsModel' */
-  ENUM_UserAction previousUserAction;  /* '<Root>/SupervisorB2' */
+  ENUM_UserAction currentUserAction;   /* '<Root>/SupervisorB2' */
   ENUM_TemperatureStatus roverTemperatureHealth;/* '<Root>/RoverTemperatureHealth' */
   ENUM_SafeAction safeAction;          /* '<Root>/ActionsModel' */
   ENUM_RoverAction roverAction;        /* '<Root>/ActionsModel' */
