@@ -108,9 +108,6 @@ volatile BUS_RemoteController task_remoteController = { 0, 0, 0 };
 volatile Gyroscope task_gyroscope = 0;
 volatile BUS_Sonar task_sonar = { 0, 0, 0 };
 
-/* NEXT RELEASE FOR SUPERVISOR (used by both Supervisor and SupervisorDeg) */
-uint32_t next_supervisor;
-
 /* Timer Handler from main.c */
 extern timer_t timerSupervisor;
 
@@ -719,9 +716,10 @@ void StartSupervisorDeg(void *argument)
 	osEventFlagsWait(flagsOSHandle, FLAG_DEGRADED, osFlagsWaitAny, osWaitForever);
 
 	const uint32_t T = ms_to_ticks(T_SUPERVISOR);
+	uint32_t next = start_tick;
 
 	/* Sleep until next release after supervisor unlock */
-	periodic_wait(&next_supervisor, T, &MissSupervisor);
+	periodic_wait(&next, T, &MissSupervisor);
 
 	printMsg("Entering Degraded Mode...\r\n");
 	/* Infinite loop */
@@ -771,7 +769,7 @@ void StartSupervisorDeg(void *argument)
 			MotorControl_OpenLoopActuate(&motors[i]);
 		}
 
-		periodic_wait(&next_supervisor, T, &MissSupervisor);
+		periodic_wait(&next, T, &MissSupervisor);
 	}
 
 	osThreadTerminate(osThreadGetId());
