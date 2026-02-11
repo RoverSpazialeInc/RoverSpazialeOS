@@ -30,7 +30,7 @@
  * @brief Enumeration of the system operating phases.
  */
 typedef enum {
-    SYNCHRONIZATION_PHASE = 0, /**< @brief Boards are synchronizing their clocks. */
+    SYNCHRONIZATION_START = 0, /**< @brief Boards are synchronizing their clocks. */
     WORKING_PHASE              /**< @brief Normal operation after synchronization. */
 } system_phase_t;
 
