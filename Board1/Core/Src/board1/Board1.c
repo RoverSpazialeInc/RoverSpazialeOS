@@ -165,7 +165,7 @@ static ENUM_StatusWhiteLed Board1_evaluateLed(uint16_T buttons, uint16_T
   /*  Carico il vecchio stato di default */
   nextLedStatus = previousLedStatus;
 
-  /*  se è premuto */
+  /*  se ï¿½ premuto */
   if (((buttons & button_mask) == button_mask) && ((lastButtons & button_mask)
        != button_mask)) {
     /*  prima non era stato premuto (rising edge) */
@@ -1170,6 +1170,7 @@ static void Board1_ExchangeLocalState(void)
      case 3:
       Board1_DW.exit_port_index_LS_Transmit = 0U;
       Board1_DW.is_ExchangeLocalState = Board1_IN_LS_Receive;
+      resetRTR();
       Board1_DW.is_LS_Receive = Board1_IN_ArmingReceive;
 
       /* Inport: '<Root>/rx_buffer' */
@@ -1388,8 +1389,8 @@ void Board1_step(void)
   } else {
     switch (Board1_DW.is_RoverState) {
      case Board1_IN_CommunicationPhase:
-      /* Timeout, aggiorno come è andato il ciclo
-         e vedo se si è rotto il link */
+      /* Timeout, aggiorno come ï¿½ andato il ciclo
+         e vedo se si ï¿½ rotto il link */
       if (timeoutOccurred_prev != Board1_DW.timeoutOccurred_start) {
         Board1_DW.commCycleStatus = CYCLE_FAIL;
 

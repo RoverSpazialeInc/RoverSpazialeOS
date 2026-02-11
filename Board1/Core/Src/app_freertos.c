@@ -459,7 +459,7 @@ void StartSupervisor(void *argument)
 
 
 		/* START TIMER FOR MONITORING WCET */
-		//timer_start(&timerSupervisor);
+		timer_start(&timerSupervisor);
 
 		do {
 			Board1_step();
@@ -468,7 +468,7 @@ void StartSupervisor(void *argument)
 		} while (Board1_Y.supervision_ended != 1);
 
 		/* STOP TIMER FOR MONITORING WCET */
-		//timer_reset(&timerSupervisor);
+		timer_reset(&timerSupervisor);
 
 		/* FINALIZING DECISION */
 		actuate_white_leds();
@@ -488,8 +488,8 @@ void StartSupervisor(void *argument)
 
 		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
 			cycle_count = 0;
-			printGlobalState(&Board1_Y.board1GlobalState);
-			printDecision(&Board1_Y.board1Decision);
+//			printGlobalState(&Board1_Y.board1GlobalState);
+//			printDecision(&Board1_Y.board1Decision);
 		}
 
 
