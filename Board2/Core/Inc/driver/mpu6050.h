@@ -65,6 +65,9 @@ typedef struct
     
     /** @brief Final output in uint16_t (0-360 degrees) */
     uint16_t KalmanAngleZ;
+
+    /** @brief Tick captured in ISR at the moment data is received */
+    uint32_t isr_tick;
 } MPU6050_Yaw_t;
 
 /**
