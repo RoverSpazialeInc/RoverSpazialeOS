@@ -337,7 +337,7 @@ void StartSynchronization(void *argument)
   /* USER CODE BEGIN StartSynchronization */
 #if RUN_SYNCHRONIZATION
 
-	system_phase = SYNCHRONIZATION_PHASE;
+	system_phase = SYNCHRONIZATION_START;
 
 	SyncThread();
 

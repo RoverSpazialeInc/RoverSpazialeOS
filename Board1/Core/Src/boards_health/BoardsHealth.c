@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'BoardsHealth'.
  *
- * Model version                  : 7.6
+ * Model version                  : 8.1
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Mon Feb  9 11:34:24 2026
+ * C/C++ source code generated on : Wed Feb 11 12:42:49 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M

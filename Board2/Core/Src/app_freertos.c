@@ -108,9 +108,6 @@ volatile BUS_RemoteController task_remoteController = { 0, 0, 0 };
 volatile Gyroscope task_gyroscope = 0;
 volatile BUS_Sonar task_sonar = { 0, 0, 0 };
 
-/* NEXT RELEASE FOR SUPERVISOR (used by both Supervisor and SupervisorDeg) */
-uint32_t next_supervisor;
-
 /* Timer Handler from main.c */
 extern timer_t timerSupervisor;
 
@@ -376,14 +373,14 @@ void StartSynchronization(void *argument)
   /* USER CODE BEGIN StartSynchronization */
 #if RUN_SYNCHRONIZATION
 
-	system_phase = SYNCHRONIZATION_PHASE;
+	system_phase = SYNCHRONIZATION_START;
 
 	SyncThread();
 
 	/* Synchronization completed: define common time-base for periodic tasks */
 	start_tick = osKernelGetTickCount();
 
-	system_phase = WORKING_PHASE;
+	system_phase = SYNCHRONIZATION_SUPERVISOR;
 
 	HAL_GPIO_WritePin(RTR_OUT_GPIO_Port, RTR_OUT_Pin, GPIO_PIN_RESET);
 
@@ -649,21 +646,10 @@ void StartSupervisor(void *argument)
   /* USER CODE BEGIN StartSupervisor */
 #if RUN_SUPERVISOR
 
-	Sync_WaitStart();
-
-	const uint32_t T = ms_to_ticks(T_SUPERVISOR);
-
-	/*
-	 * next for Supervisor is a global variabile because it's also used by the SupervisorDeg task,
-	 * which shares the same code but is activated in degraded mode after a specific event flag
-	 * is set
-	 */
-	uint32_t next_supervisor = start_tick;
-
-	periodic_wait(&next_supervisor, T, &MissSupervisor);  // Skip first communication
-
 	/* Infinite loop */
 	for (;;) {
+
+        osEventFlagsWait(flagsOSHandle,FLAGS_SUPERVISOR_WAIT,osFlagsWaitAny, osWaitForever);
 
 		/* Copy task variables into Simulink model inputs */
 		copy_sensor_inputs(&Board2_U.remoteController,
@@ -674,10 +660,9 @@ void StartSupervisor(void *argument)
 		Board2_U.areSensorsValid = 0;
 		Board2_U.deadlineOccurred = 0;
 
-
-
 		manage_fake_sonar_toggle(&Board2_U.remoteController, &Board2_U.sonar);
 
+	    system_phase = WORKING_PHASE;
 
 		/* START TIMER FOR MONITORING WCET */
 		//timer_start(&timerSupervisor);
@@ -689,6 +674,7 @@ void StartSupervisor(void *argument)
 		/* STOP TIMER FOR MONITORING WCET */
 		//timer_reset(&timerSupervisor);
 
+		system_phase = SYNCHRONIZATION_SUPERVISOR;
 
 		/* BEGIN PRINT SECTION */
 
@@ -708,7 +694,6 @@ void StartSupervisor(void *argument)
 
 		/* END PRINT SECTION */
 
-		periodic_wait(&next_supervisor, T, &MissSupervisor);
 	}
 #endif
 
@@ -731,9 +716,10 @@ void StartSupervisorDeg(void *argument)
 	osEventFlagsWait(flagsOSHandle, FLAG_DEGRADED, osFlagsWaitAny, osWaitForever);
 
 	const uint32_t T = ms_to_ticks(T_SUPERVISOR);
+	uint32_t next = start_tick;
 
 	/* Sleep until next release after supervisor unlock */
-	periodic_wait(&next_supervisor, T, &MissSupervisor);
+	periodic_wait(&next, T, &MissSupervisor);
 
 	printMsg("Entering Degraded Mode...\r\n");
 	/* Infinite loop */
@@ -783,7 +769,7 @@ void StartSupervisorDeg(void *argument)
 			MotorControl_OpenLoopActuate(&motors[i]);
 		}
 
-		periodic_wait(&next_supervisor, T, &MissSupervisor);
+		periodic_wait(&next, T, &MissSupervisor);
 	}
 
 	osThreadTerminate(osThreadGetId());

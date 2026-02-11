@@ -369,9 +369,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     	switch (system_phase)
     	{
 
-    		case SYNCHRONIZATION_PHASE:
+    		case SYNCHRONIZATION_START:
         			Sync_OnEdgeFromISR();
 				break;
+
+			case SYNCHRONIZATION_SUPERVISOR:
+		            osEventFlagsSet(flagsOSHandle, FLAGS_SUPERVISOR_WAIT);
+		        break;
 
 			case WORKING_PHASE:
 		            flagRTR = 1;
