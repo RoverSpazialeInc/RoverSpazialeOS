@@ -62,7 +62,7 @@
 const uint16_t i2c_timeout = 100;
 const double Accel_Z_corrector = 14418.0;
 
-uint32_t timer;
+uint32_t last_tick;
 static double gyroZ_bias = 0.0; // bias in dps (degrees/sec)
 
 Kalman_t KalmanX = {
@@ -130,7 +130,7 @@ uint8_t MPU6050_Init(I2C_HandleTypeDef *I2Cx)
             gyroZ_bias = (double)sum_gz / (double)samples / 131.0; // convert to dps
         }
 
-        timer = HAL_GetTick(); // initialize timer to avoid huge first dt
+        last_tick = HAL_GetTick(); // initialize last_tick to avoid huge first dt
 
         return 0;
     }
@@ -240,8 +240,8 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     DataStruct->Gz = DataStruct->Gyro_Z_RAW / 131.0 - gyroZ_bias; // subtract calibrated bias
 
     // Kalman angle solve
-    double dt = (double)(HAL_GetTick() - timer) / 1000;
-    timer = HAL_GetTick();
+    double dt = (double)(HAL_GetTick() - last_tick) / 1000;
+    last_tick = HAL_GetTick();
 
     double roll;
     double roll_sqrt = sqrt(
@@ -362,6 +362,9 @@ MPU_RxStatus_t MPU6050_GetStatus(void) {
  * @brief  I2C Receive Complete Callback
  */
 void MPU6050_RxCpltCallback(void) {
+    if (pYawStruct != NULL) {
+        pYawStruct->isr_tick = HAL_GetTick(); // Capture timestamp right when data arrives
+    }
     mpu_rx_status = MPU_RX_SUCCESS; // Signal operation successfully received
 }
 
@@ -379,9 +382,9 @@ void MPU6050_Process_Yaw_IT_Data(void)
         // 2. Convert to dps
         pYawStruct->Gz = pYawStruct->Gyro_Z_RAW / 131.0 - gyroZ_bias;
 
-        // 3. Calculate DT
-        double dt = (double)(HAL_GetTick() - timer) / 1000;
-        timer = HAL_GetTick();
+        // 3. Calculate DT using tick captured in ISR (not current time)
+        double dt = (double)(pYawStruct->isr_tick - last_tick) / 1000;
+        last_tick = pYawStruct->isr_tick;
 
         // 4. Integration
         pYawStruct->_YawAcc += pYawStruct->Gz * dt;
