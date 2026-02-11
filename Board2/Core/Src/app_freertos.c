@@ -115,54 +115,6 @@ uint32_t next_supervisor;
 extern timer_t timerSupervisor;
 
 /* USER CODE END Variables */
-/* Definitions for ReadController */
-osThreadId_t ReadControllerHandle;
-uint32_t ReadControllerBuffer[ 1024 ];
-osStaticThreadDef_t ReadControllerControlBlock;
-const osThreadAttr_t ReadController_attributes = {
-  .name = "ReadController",
-  .stack_mem = &ReadControllerBuffer[0],
-  .stack_size = sizeof(ReadControllerBuffer),
-  .cb_mem = &ReadControllerControlBlock,
-  .cb_size = sizeof(ReadControllerControlBlock),
-  .priority = (osPriority_t) osPriorityHigh,
-};
-/* Definitions for ReadGyroscope */
-osThreadId_t ReadGyroscopeHandle;
-uint32_t ReadGyroscopeBuffer[ 1024 ];
-osStaticThreadDef_t ReadGyroscopeControlBlock;
-const osThreadAttr_t ReadGyroscope_attributes = {
-  .name = "ReadGyroscope",
-  .stack_mem = &ReadGyroscopeBuffer[0],
-  .stack_size = sizeof(ReadGyroscopeBuffer),
-  .cb_mem = &ReadGyroscopeControlBlock,
-  .cb_size = sizeof(ReadGyroscopeControlBlock),
-  .priority = (osPriority_t) osPriorityAboveNormal,
-};
-/* Definitions for Supervisor */
-osThreadId_t SupervisorHandle;
-uint32_t SupervisorBuffer[ 2048 ];
-osStaticThreadDef_t SupervisorControlBlock;
-const osThreadAttr_t Supervisor_attributes = {
-  .name = "Supervisor",
-  .stack_mem = &SupervisorBuffer[0],
-  .stack_size = sizeof(SupervisorBuffer),
-  .cb_mem = &SupervisorControlBlock,
-  .cb_size = sizeof(SupervisorControlBlock),
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for ReadSonars */
-osThreadId_t ReadSonarsHandle;
-uint32_t ReadSonarsBuffer[ 1024 ];
-osStaticThreadDef_t ReadSonarsControlBlock;
-const osThreadAttr_t ReadSonars_attributes = {
-  .name = "ReadSonars",
-  .stack_mem = &ReadSonarsBuffer[0],
-  .stack_size = sizeof(ReadSonarsBuffer),
-  .cb_mem = &ReadSonarsControlBlock,
-  .cb_size = sizeof(ReadSonarsControlBlock),
-  .priority = (osPriority_t) osPriorityLow,
-};
 /* Definitions for StartSegger */
 osThreadId_t StartSeggerHandle;
 uint32_t StartSeggerBuffer[ 128 ];
@@ -199,6 +151,42 @@ const osThreadAttr_t PollingServer_attributes = {
   .cb_size = sizeof(PollingServerControlBlock),
   .priority = (osPriority_t) osPriorityHigh5,
 };
+/* Definitions for ReadController */
+osThreadId_t ReadControllerHandle;
+uint32_t ReadControllerBuffer[ 1024 ];
+osStaticThreadDef_t ReadControllerControlBlock;
+const osThreadAttr_t ReadController_attributes = {
+  .name = "ReadController",
+  .stack_mem = &ReadControllerBuffer[0],
+  .stack_size = sizeof(ReadControllerBuffer),
+  .cb_mem = &ReadControllerControlBlock,
+  .cb_size = sizeof(ReadControllerControlBlock),
+  .priority = (osPriority_t) osPriorityHigh,
+};
+/* Definitions for ReadGyroscope */
+osThreadId_t ReadGyroscopeHandle;
+uint32_t ReadGyroscopeBuffer[ 1024 ];
+osStaticThreadDef_t ReadGyroscopeControlBlock;
+const osThreadAttr_t ReadGyroscope_attributes = {
+  .name = "ReadGyroscope",
+  .stack_mem = &ReadGyroscopeBuffer[0],
+  .stack_size = sizeof(ReadGyroscopeBuffer),
+  .cb_mem = &ReadGyroscopeControlBlock,
+  .cb_size = sizeof(ReadGyroscopeControlBlock),
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+/* Definitions for Supervisor */
+osThreadId_t SupervisorHandle;
+uint32_t SupervisorBuffer[ 2048 ];
+osStaticThreadDef_t SupervisorControlBlock;
+const osThreadAttr_t Supervisor_attributes = {
+  .name = "Supervisor",
+  .stack_mem = &SupervisorBuffer[0],
+  .stack_size = sizeof(SupervisorBuffer),
+  .cb_mem = &SupervisorControlBlock,
+  .cb_size = sizeof(SupervisorControlBlock),
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* Definitions for SupervisorDeg */
 osThreadId_t SupervisorDegHandle;
 uint32_t SupervisorDegBuffer[ 2048 ];
@@ -210,6 +198,18 @@ const osThreadAttr_t SupervisorDeg_attributes = {
   .cb_mem = &SupervisorDegControlBlock,
   .cb_size = sizeof(SupervisorDegControlBlock),
   .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for ReadSonars */
+osThreadId_t ReadSonarsHandle;
+uint32_t ReadSonarsBuffer[ 1024 ];
+osStaticThreadDef_t ReadSonarsControlBlock;
+const osThreadAttr_t ReadSonars_attributes = {
+  .name = "ReadSonars",
+  .stack_mem = &ReadSonarsBuffer[0],
+  .stack_size = sizeof(ReadSonarsBuffer),
+  .cb_mem = &ReadSonarsControlBlock,
+  .cb_size = sizeof(ReadSonarsControlBlock),
+  .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for SonarMonitoring */
 osTimerId_t SonarMonitoringHandle;
@@ -253,14 +253,14 @@ static inline void manage_fake_sonar_toggle(BUS_RemoteController *rc, BUS_Sonar 
 
 /* USER CODE END FunctionPrototypes */
 
-void StartReadController(void *argument);
-void StartReadGyroscope(void *argument);
-void StartSupervisor(void *argument);
-void StartReadSonars(void *argument);
 void StartSeggerTask(void *argument);
 void StartSynchronization(void *argument);
 void StartPollingServer(void *argument);
+void StartReadController(void *argument);
+void StartReadGyroscope(void *argument);
+void StartSupervisor(void *argument);
 void StartSupervisorDeg(void *argument);
+void StartReadSonars(void *argument);
 void SonarTimeout(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -296,18 +296,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of ReadController */
-  ReadControllerHandle = osThreadNew(StartReadController, NULL, &ReadController_attributes);
-
-  /* creation of ReadGyroscope */
-  ReadGyroscopeHandle = osThreadNew(StartReadGyroscope, NULL, &ReadGyroscope_attributes);
-
-  /* creation of Supervisor */
-  SupervisorHandle = osThreadNew(StartSupervisor, NULL, &Supervisor_attributes);
-
-  /* creation of ReadSonars */
-  ReadSonarsHandle = osThreadNew(StartReadSonars, NULL, &ReadSonars_attributes);
-
   /* creation of StartSegger */
   StartSeggerHandle = osThreadNew(StartSeggerTask, NULL, &StartSegger_attributes);
 
@@ -317,8 +305,20 @@ void MX_FREERTOS_Init(void) {
   /* creation of PollingServer */
   PollingServerHandle = osThreadNew(StartPollingServer, NULL, &PollingServer_attributes);
 
+  /* creation of ReadController */
+  ReadControllerHandle = osThreadNew(StartReadController, NULL, &ReadController_attributes);
+
+  /* creation of ReadGyroscope */
+  ReadGyroscopeHandle = osThreadNew(StartReadGyroscope, NULL, &ReadGyroscope_attributes);
+
+  /* creation of Supervisor */
+  SupervisorHandle = osThreadNew(StartSupervisor, NULL, &Supervisor_attributes);
+
   /* creation of SupervisorDeg */
   SupervisorDegHandle = osThreadNew(StartSupervisorDeg, NULL, &SupervisorDeg_attributes);
+
+  /* creation of ReadSonars */
+  ReadSonarsHandle = osThreadNew(StartReadSonars, NULL, &ReadSonars_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
@@ -335,252 +335,6 @@ void MX_FREERTOS_Init(void) {
 	            FLAG_START, FLAG_SYNC, FLAG_ACK);
   /* USER CODE END RTOS_EVENTS */
 
-}
-
-/* USER CODE BEGIN Header_StartReadController */
-/**
- * @brief  Function implementing the ReadController thread.
- * @param  argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartReadController */
-void StartReadController(void *argument)
-{
-  /* USER CODE BEGIN StartReadController */
-#if RUN_READ_CONTROLLER
-
-	Sync_WaitStart();
-
-	const uint32_t T = ms_to_ticks(T_REMOTE_CONTROLLER);
-	uint32_t next = start_tick;
-
-	/* Return code of the last I2C request:
-	 * PAD_OK  -> request started successfully (asynchronous reception in progress)
-	 * PAD_ERR -> request not started (I2C busy or HAL start error)
-	 */
-	int8_t result = PAD_ERR;
-
-	/* Infinite loop */
-	for (;;) {
-
-#if REAL_TASK
-
-
-		/* Start an asynchronous I2C read from the remote controller.
-		 * Note: PAD_OK only means the reception was successfully started.
-		 * The final outcome (success/error) is reported later via callbacks
-		 * and can be eventually checked through PadReceiver_GetStatus().
-		 */
-		result = PadReceiver_Request();
-
-		/* Handle immediate start failure:
-		 * If the request could not be started (bus busy or HAL error),
-		 * raise an error flag to notify other tasks/components.
-		 */
-		if (result == PAD_ERR) {
-            error_pad_receiver();
-			// osEventFlagsSet(flagsOSHandle, FLAG_PAD_ERROR);
-            // No need to use the Polling Server for error handling
-		}
-
-#else
-		DWT_DelayUs(WCET_CONTROLLER);
-#endif
-
-		/* Wait until next period and track deadline miss if any */
-		periodic_wait(&next, T, &MissReadController);
-	}
-#endif
-
-	osThreadTerminate(osThreadGetId());
-
-  /* USER CODE END StartReadController */
-}
-
-/* USER CODE BEGIN Header_StartReadGyroscope */
-/**
- * @brief Function implementing the ReadGyroscope thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartReadGyroscope */
-void StartReadGyroscope(void *argument)
-{
-  /* USER CODE BEGIN StartReadGyroscope */
-#if RUN_READ_GYROSCOPE
-
-	Sync_WaitStart();
-
-	const uint32_t T = ms_to_ticks(T_GYROSCOPE);
-	uint32_t next = start_tick;
-
-	/* Return code of the last gyroscope read request:
-	 * MPU_OK  -> request started successfully (asynchronous I2C reception in progress)
-	 * MPU_ERR -> request not started (I2C busy or HAL start error)
-	 *
-	 * Note: MPU_OK does NOT mean that MPU6050_Yaw has been updated yet.
-	 * The final outcome is provided later by callbacks / driver status.
-	 */
-	int8_t result = MPU_ERR;
-
-	/* Infinite loop */
-	for (;;) {
-
-#if REAL_TASK
-
-		/* Start an asynchronous read of the yaw value from the MPU6050 via I2C interrupt.
-		 * If the request starts correctly, the driver will update MPU6050_Yaw later
-		 * (typically in the Rx complete callback).
-		 */
-		result = MPU6050_Read_Yaw_IT(&hi2c3, &MPU6050_Yaw);
-
-		/* Handle immediate start failure:
-		 * If the read request cannot be started (bus busy or HAL error),
-		 * raise an error flag to notify other tasks/components.
-		 */
-		if (result == MPU_ERR) {
-			error_gyroscope();
-			// osEventFlagsSet(flagsOSHandle, FLAG_GYRO_ERROR);
-			// No need to use the Polling Server for error handling
-		}
-
-#else
-		DWT_DelayUs(WCET_GYROSCOPE);
-#endif
-
-		/* Wait until next period and track deadline miss if any */
-		periodic_wait(&next, T, &MissReadGyroscope);
-	}
-#endif
-	osThreadTerminate(osThreadGetId());
-
-  /* USER CODE END StartReadGyroscope */
-}
-
-/* USER CODE BEGIN Header_StartSupervisor */
-/**
- * @brief Function implementing the Supervisor thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartSupervisor */
-void StartSupervisor(void *argument)
-{
-  /* USER CODE BEGIN StartSupervisor */
-#if RUN_SUPERVISOR
-
-	Sync_WaitStart();
-
-	const uint32_t T = ms_to_ticks(T_SUPERVISOR);
-
-	/*
-	 * next for Supervisor is a global variabile because it's also used by the SupervisorDeg task,
-	 * which shares the same code but is activated in degraded mode after a specific event flag
-	 * is set
-	 */
-	uint32_t next_supervisor = start_tick;
-
-	periodic_wait(&next_supervisor, T, &MissSupervisor);  // Skip first communication
-
-	/* Infinite loop */
-	for (;;) {
-
-		compute_sensors_validity(&Board2_U.areSensorsValid);
-		compute_deadline_misses(&Board2_U.deadlineOccurred);
-
-		Board2_U.areSensorsValid = 0;
-		Board2_U.deadlineOccurred = 0;
-
-		/* Copy task variables into Simulink model inputs */
-		copy_sensor_inputs(&Board2_U.remoteController,
-				&Board2_U.gyroscope, &Board2_U.sonar);
-
-		manage_fake_sonar_toggle(&Board2_U.remoteController, &Board2_U.sonar);
-
-
-		/* START TIMER FOR MONITORING WCET */
-		//timer_start(&timerSupervisor);
-
-		do {
-			Board2_step();
-		} while (Board2_Y.supervision_ended != 1);
-
-		/* STOP TIMER FOR MONITORING WCET */
-		//timer_reset(&timerSupervisor);
-
-
-		/* BEGIN PRINT SECTION */
-
-		static uint32_t cycle_count = 0;
-		cycle_count++;
-
-
-//		printMsg("Cycle Count B2: ");
-//		printInt((int32_t)cycle_count);
-//		printNewLine();
-
-//		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
-//			printGlobalState(&Board2_Y.board2GlobalState);
-//			printDecision(&Board2_Y.board2Decision);
-//			cycle_count = 0;
-//		}
-
-		/* END PRINT SECTION */
-
-		periodic_wait(&next_supervisor, T, &MissSupervisor);
-	}
-#endif
-
-	osThreadTerminate(osThreadGetId());
-
-  /* USER CODE END StartSupervisor */
-}
-
-/* USER CODE BEGIN Header_StartReadSonars */
-/**
- * @brief Function implementing the ReadSonars thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartReadSonars */
-void StartReadSonars(void *argument)
-{
-  /* USER CODE BEGIN StartReadSonars */
-#if RUN_READ_SONARS
-
-	Sync_WaitStart();
-
-	const uint32_t T = ms_to_ticks(T_SONAR);
-	uint32_t next = start_tick;
-
-	const uint32_t TIMEOUT_TICKS = ms_to_ticks(MAX_WAIT_SONAR);
-	/* Infinite loop */
-	for (;;) {
-
-#if REAL_TASK
-
-		hcsr04_trigger(&sonarLeft);
-		hcsr04_trigger(&sonarFront);
-		hcsr04_trigger(&sonarRight);
-
-		/* Safe stop and start timer */
-#if SEGGER_BUILD == 0 //pezzotto per evitare conflitti con SysView
-		osTimerStop(SonarMonitoringHandle);
-		osTimerStart(SonarMonitoringHandle, TIMEOUT_TICKS);
-#endif
-
-#else
-		DWT_DelayUs(WCET_SONAR);
-#endif
-
-		/* Wait until next period and track deadline miss if any */
-		periodic_wait(&next, T, &MissReadSonars);
-	}
-
-#endif
-
-	osThreadTerminate(osThreadGetId());
-  /* USER CODE END StartReadSonars */
 }
 
 /* USER CODE BEGIN Header_StartSeggerTask */
@@ -763,6 +517,206 @@ void StartPollingServer(void *argument)
   /* USER CODE END StartPollingServer */
 }
 
+/* USER CODE BEGIN Header_StartReadController */
+/**
+ * @brief  Function implementing the ReadController thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartReadController */
+void StartReadController(void *argument)
+{
+  /* USER CODE BEGIN StartReadController */
+#if RUN_READ_CONTROLLER
+
+	Sync_WaitStart();
+
+	const uint32_t T = ms_to_ticks(T_REMOTE_CONTROLLER);
+	uint32_t next = start_tick;
+
+	/* Return code of the last I2C request:
+	 * PAD_OK  -> request started successfully (asynchronous reception in progress)
+	 * PAD_ERR -> request not started (I2C busy or HAL start error)
+	 */
+	int8_t result = PAD_ERR;
+
+	/* Infinite loop */
+	for (;;) {
+
+#if REAL_TASK
+
+
+		/* Start an asynchronous I2C read from the remote controller.
+		 * Note: PAD_OK only means the reception was successfully started.
+		 * The final outcome (success/error) is reported later via callbacks
+		 * and can be eventually checked through PadReceiver_GetStatus().
+		 */
+		result = PadReceiver_Request();
+
+		/* Handle immediate start failure:
+		 * If the request could not be started (bus busy or HAL error),
+		 * raise an error flag to notify other tasks/components.
+		 */
+		if (result == PAD_ERR) {
+            error_pad_receiver();
+			// osEventFlagsSet(flagsOSHandle, FLAG_PAD_ERROR);
+            // No need to use the Polling Server for error handling
+		}
+
+#else
+		DWT_DelayUs(WCET_CONTROLLER);
+#endif
+
+		/* Wait until next period and track deadline miss if any */
+		periodic_wait(&next, T, &MissReadController);
+	}
+#endif
+
+	osThreadTerminate(osThreadGetId());
+
+  /* USER CODE END StartReadController */
+}
+
+/* USER CODE BEGIN Header_StartReadGyroscope */
+/**
+ * @brief Function implementing the ReadGyroscope thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartReadGyroscope */
+void StartReadGyroscope(void *argument)
+{
+  /* USER CODE BEGIN StartReadGyroscope */
+#if RUN_READ_GYROSCOPE
+
+	Sync_WaitStart();
+
+	const uint32_t T = ms_to_ticks(T_GYROSCOPE);
+	uint32_t next = start_tick;
+
+	/* Return code of the last gyroscope read request:
+	 * MPU_OK  -> request started successfully (asynchronous I2C reception in progress)
+	 * MPU_ERR -> request not started (I2C busy or HAL start error)
+	 *
+	 * Note: MPU_OK does NOT mean that MPU6050_Yaw has been updated yet.
+	 * The final outcome is provided later by callbacks / driver status.
+	 */
+	int8_t result = MPU_ERR;
+
+	/* Infinite loop */
+	for (;;) {
+
+#if REAL_TASK
+
+		/* Start an asynchronous read of the yaw value from the MPU6050 via I2C interrupt.
+		 * If the request starts correctly, the driver will update MPU6050_Yaw later
+		 * (typically in the Rx complete callback).
+		 */
+		result = MPU6050_Read_Yaw_IT(&hi2c3, &MPU6050_Yaw);
+
+		/* Handle immediate start failure:
+		 * If the read request cannot be started (bus busy or HAL error),
+		 * raise an error flag to notify other tasks/components.
+		 */
+		if (result == MPU_ERR) {
+			error_gyroscope();
+			// osEventFlagsSet(flagsOSHandle, FLAG_GYRO_ERROR);
+			// No need to use the Polling Server for error handling
+		}
+
+#else
+		DWT_DelayUs(WCET_GYROSCOPE);
+#endif
+
+		/* Wait until next period and track deadline miss if any */
+		periodic_wait(&next, T, &MissReadGyroscope);
+	}
+#endif
+	osThreadTerminate(osThreadGetId());
+
+  /* USER CODE END StartReadGyroscope */
+}
+
+/* USER CODE BEGIN Header_StartSupervisor */
+/**
+ * @brief Function implementing the Supervisor thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartSupervisor */
+void StartSupervisor(void *argument)
+{
+  /* USER CODE BEGIN StartSupervisor */
+#if RUN_SUPERVISOR
+
+	Sync_WaitStart();
+
+	const uint32_t T = ms_to_ticks(T_SUPERVISOR);
+
+	/*
+	 * next for Supervisor is a global variabile because it's also used by the SupervisorDeg task,
+	 * which shares the same code but is activated in degraded mode after a specific event flag
+	 * is set
+	 */
+	uint32_t next_supervisor = start_tick;
+
+	periodic_wait(&next_supervisor, T, &MissSupervisor);  // Skip first communication
+
+	/* Infinite loop */
+	for (;;) {
+
+		/* Copy task variables into Simulink model inputs */
+		copy_sensor_inputs(&Board2_U.remoteController,
+				&Board2_U.gyroscope, &Board2_U.sonar);
+		compute_sensors_validity(&Board2_U.areSensorsValid);
+		compute_deadline_misses(&Board2_U.deadlineOccurred);
+
+		Board2_U.areSensorsValid = 0;
+		Board2_U.deadlineOccurred = 0;
+
+
+
+		manage_fake_sonar_toggle(&Board2_U.remoteController, &Board2_U.sonar);
+
+
+		/* START TIMER FOR MONITORING WCET */
+		//timer_start(&timerSupervisor);
+
+		do {
+			Board2_step();
+		} while (Board2_Y.supervision_ended != 1);
+
+		/* STOP TIMER FOR MONITORING WCET */
+		//timer_reset(&timerSupervisor);
+
+
+		/* BEGIN PRINT SECTION */
+
+		static uint32_t cycle_count = 0;
+		cycle_count++;
+
+
+//		printMsg("Cycle Count B2: ");
+//		printInt((int32_t)cycle_count);
+//		printNewLine();
+
+//		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
+//			printGlobalState(&Board2_Y.board2GlobalState);
+//			printDecision(&Board2_Y.board2Decision);
+//			cycle_count = 0;
+//		}
+
+		/* END PRINT SECTION */
+
+		periodic_wait(&next_supervisor, T, &MissSupervisor);
+	}
+#endif
+
+	osThreadTerminate(osThreadGetId());
+
+  /* USER CODE END StartSupervisor */
+}
+
 /* USER CODE BEGIN Header_StartSupervisorDeg */
 /**
 * @brief Function implementing the SupervisorDeg thread.
@@ -785,15 +739,16 @@ void StartSupervisorDeg(void *argument)
 	/* Infinite loop */
 	for (;;) {
 
+		/* Copy task variables into Simulink model inputs */
+		copy_sensor_inputs(&Board2Degraded_U.remoteController,
+				&Board2Degraded_U.gyroscope, &Board2Degraded_U.sonar);
 		compute_sensors_validity(&Board2Degraded_U.areSensorsValid);
 		compute_deadline_misses(&Board2Degraded_U.deadlineOccurred);
 
 		Board2Degraded_U.areSensorsValid = 0;
 		Board2Degraded_U.deadlineOccurred = 0;
 
-		/* Copy task variables into Simulink model inputs */
-		copy_sensor_inputs(&Board2Degraded_U.remoteController,
-				&Board2Degraded_U.gyroscope, &Board2Degraded_U.sonar);
+
 
 		manage_fake_sonar_toggle(&Board2Degraded_U.remoteController, &Board2Degraded_U.sonar);
 
@@ -834,6 +789,53 @@ void StartSupervisorDeg(void *argument)
 	osThreadTerminate(osThreadGetId());
 
   /* USER CODE END StartSupervisorDeg */
+}
+
+/* USER CODE BEGIN Header_StartReadSonars */
+/**
+ * @brief Function implementing the ReadSonars thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartReadSonars */
+void StartReadSonars(void *argument)
+{
+  /* USER CODE BEGIN StartReadSonars */
+#if RUN_READ_SONARS
+
+	Sync_WaitStart();
+
+	const uint32_t T = ms_to_ticks(T_SONAR);
+	uint32_t next = start_tick;
+
+	const uint32_t TIMEOUT_TICKS = ms_to_ticks(MAX_WAIT_SONAR);
+	/* Infinite loop */
+	for (;;) {
+
+#if REAL_TASK
+
+		hcsr04_trigger(&sonarLeft);
+		hcsr04_trigger(&sonarFront);
+		hcsr04_trigger(&sonarRight);
+
+		/* Safe stop and start timer */
+#if SEGGER_BUILD == 0 //pezzotto per evitare conflitti con SysView
+		osTimerStop(SonarMonitoringHandle);
+		osTimerStart(SonarMonitoringHandle, TIMEOUT_TICKS);
+#endif
+
+#else
+		DWT_DelayUs(WCET_SONAR);
+#endif
+
+		/* Wait until next period and track deadline miss if any */
+		periodic_wait(&next, T, &MissReadSonars);
+	}
+
+#endif
+
+	osThreadTerminate(osThreadGetId());
+  /* USER CODE END StartReadSonars */
 }
 
 /* SonarTimeout function */

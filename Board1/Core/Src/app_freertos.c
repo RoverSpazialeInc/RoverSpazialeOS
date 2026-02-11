@@ -104,6 +104,30 @@ volatile BatteryLevel task_batteryLevel = 0;
 extern timer_t timerSupervisor;
 
 /* USER CODE END Variables */
+/* Definitions for StartSegger */
+osThreadId_t StartSeggerHandle;
+uint32_t StartSeggerBuffer[ 128 ];
+osStaticThreadDef_t StartSeggerControlBlock;
+const osThreadAttr_t StartSegger_attributes = {
+  .name = "StartSegger",
+  .stack_mem = &StartSeggerBuffer[0],
+  .stack_size = sizeof(StartSeggerBuffer),
+  .cb_mem = &StartSeggerControlBlock,
+  .cb_size = sizeof(StartSeggerControlBlock),
+  .priority = (osPriority_t) osPriorityHigh7,
+};
+/* Definitions for Synchronization */
+osThreadId_t SynchronizationHandle;
+uint32_t SynchronizationBuffer[ 128 ];
+osStaticThreadDef_t SynchronizationControlBlock;
+const osThreadAttr_t Synchronization_attributes = {
+  .name = "Synchronization",
+  .stack_mem = &SynchronizationBuffer[0],
+  .stack_size = sizeof(SynchronizationBuffer),
+  .cb_mem = &SynchronizationControlBlock,
+  .cb_size = sizeof(SynchronizationControlBlock),
+  .priority = (osPriority_t) osPriorityHigh6,
+};
 /* Definitions for PID */
 osThreadId_t PIDHandle;
 uint32_t PIDBuffer[ 1024 ];
@@ -152,30 +176,6 @@ const osThreadAttr_t ReadBattery_attributes = {
   .cb_size = sizeof(ReadBatteryControlBlock),
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for StartSegger */
-osThreadId_t StartSeggerHandle;
-uint32_t StartSeggerBuffer[ 128 ];
-osStaticThreadDef_t StartSeggerControlBlock;
-const osThreadAttr_t StartSegger_attributes = {
-  .name = "StartSegger",
-  .stack_mem = &StartSeggerBuffer[0],
-  .stack_size = sizeof(StartSeggerBuffer),
-  .cb_mem = &StartSeggerControlBlock,
-  .cb_size = sizeof(StartSeggerControlBlock),
-  .priority = (osPriority_t) osPriorityHigh7,
-};
-/* Definitions for Synchronization */
-osThreadId_t SynchronizationHandle;
-uint32_t SynchronizationBuffer[ 128 ];
-osStaticThreadDef_t SynchronizationControlBlock;
-const osThreadAttr_t Synchronization_attributes = {
-  .name = "Synchronization",
-  .stack_mem = &SynchronizationBuffer[0],
-  .stack_size = sizeof(SynchronizationBuffer),
-  .cb_mem = &SynchronizationControlBlock,
-  .cb_size = sizeof(SynchronizationControlBlock),
-  .priority = (osPriority_t) osPriorityHigh6,
-};
 /* Definitions for toggleLeftRedLed */
 osTimerId_t toggleLeftRedLedHandle;
 osStaticTimerDef_t toggleLeftRedLedControlBlock;
@@ -221,12 +221,12 @@ static inline void change_regulator(void);
 
 /* USER CODE END FunctionPrototypes */
 
+void StartSeggerTask(void *argument);
+void StartSynchronization(void *argument);
 void StartPID(void *argument);
 void StartSupervisor(void *argument);
 void StartReadTemperature(void *argument);
 void StartReadBattery(void *argument);
-void StartSeggerTask(void *argument);
-void StartSynchronization(void *argument);
 void callbackToggleLeftRedLed(void *argument);
 void callbackToggleRightRedLed(void *argument);
 
@@ -265,6 +265,12 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
+  /* creation of StartSegger */
+  StartSeggerHandle = osThreadNew(StartSeggerTask, NULL, &StartSegger_attributes);
+
+  /* creation of Synchronization */
+  SynchronizationHandle = osThreadNew(StartSynchronization, NULL, &Synchronization_attributes);
+
   /* creation of PID */
   PIDHandle = osThreadNew(StartPID, NULL, &PID_attributes);
 
@@ -276,12 +282,6 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of ReadBattery */
   ReadBatteryHandle = osThreadNew(StartReadBattery, NULL, &ReadBattery_attributes);
-
-  /* creation of StartSegger */
-  StartSeggerHandle = osThreadNew(StartSeggerTask, NULL, &StartSegger_attributes);
-
-  /* creation of Synchronization */
-  SynchronizationHandle = osThreadNew(StartSynchronization, NULL, &Synchronization_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
@@ -298,6 +298,66 @@ void MX_FREERTOS_Init(void) {
 	            FLAG_START, FLAG_SYNC, FLAG_ACK);
   /* USER CODE END RTOS_EVENTS */
 
+}
+
+/* USER CODE BEGIN Header_StartSeggerTask */
+/**
+ * @brief Function implementing the StartSegger thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartSeggerTask */
+void StartSeggerTask(void *argument)
+{
+  /* USER CODE BEGIN StartSeggerTask */
+#if SEGGER_BUILD
+	  SEGGER_SYSVIEW_Conf();
+	  SEGGER_SYSVIEW_Start();
+#endif
+	/* Infinite loop */
+	for (;;) {
+		break;
+	}
+	osThreadTerminate(osThreadGetId());
+
+  /* USER CODE END StartSeggerTask */
+}
+
+/* USER CODE BEGIN Header_StartSynchronization */
+// This feature is extern to the library behavior
+extern volatile system_phase_t system_phase;
+/**
+ * @brief Function implementing the Synchronization thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartSynchronization */
+void StartSynchronization(void *argument)
+{
+  /* USER CODE BEGIN StartSynchronization */
+#if RUN_SYNCHRONIZATION
+
+	system_phase = SYNCHRONIZATION_PHASE;
+
+	SyncThread();
+
+	/* Synchronization completed: define common time-base for periodic tasks */
+	start_tick = osKernelGetTickCount();
+
+	system_phase = WORKING_PHASE;
+
+	HAL_GPIO_WritePin(RTR_OUT_GPIO_Port, RTR_OUT_Pin, GPIO_PIN_RESET);
+
+	#if LED_DEBUG
+	HAL_GPIO_WritePin(LedDebug_GPIO_Port, LedDebug_Pin, GPIO_PIN_SET);
+	#endif
+
+#endif
+
+	// Termination, if clock drift is not critical
+	osThreadTerminate(osThreadGetId());
+
+  /* USER CODE END StartSynchronization */
 }
 
 /* USER CODE BEGIN Header_StartPID */
@@ -382,6 +442,10 @@ void StartSupervisor(void *argument)
 	/* Infinite loop */
 	for (;;) {
 
+
+		/* Copy task variables into Simulink model inputs */
+		copy_sensor_inputs(&Board1_U.speed,
+				&Board1_U.temperature, &Board1_U.batteryLevel);
 		compute_sensors_validity(&Board1_U.areSensorsValid);
 		compute_deadline_misses(&Board1_U.deadlineOccurred);
 
@@ -393,9 +457,6 @@ void StartSupervisor(void *argument)
 		Board1_U.areSensorsValid = 1;
 #endif
 
-		/* Copy task variables into Simulink model inputs */
-		copy_sensor_inputs(&Board1_U.speed,
-				&Board1_U.temperature, &Board1_U.batteryLevel);
 
 		/* START TIMER FOR MONITORING WCET */
 		//timer_start(&timerSupervisor);
@@ -550,66 +611,6 @@ void StartReadBattery(void *argument)
 	osThreadTerminate(osThreadGetId());
 
   /* USER CODE END StartReadBattery */
-}
-
-/* USER CODE BEGIN Header_StartSeggerTask */
-/**
- * @brief Function implementing the StartSegger thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartSeggerTask */
-void StartSeggerTask(void *argument)
-{
-  /* USER CODE BEGIN StartSeggerTask */
-#if SEGGER_BUILD
-	  SEGGER_SYSVIEW_Conf();
-	  SEGGER_SYSVIEW_Start();
-#endif
-	/* Infinite loop */
-	for (;;) {
-		break;
-	}
-	osThreadTerminate(osThreadGetId());
-
-  /* USER CODE END StartSeggerTask */
-}
-
-/* USER CODE BEGIN Header_StartSynchronization */
-// This feature is extern to the library behavior
-extern volatile system_phase_t system_phase;
-/**
- * @brief Function implementing the Synchronization thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartSynchronization */
-void StartSynchronization(void *argument)
-{
-  /* USER CODE BEGIN StartSynchronization */
-#if RUN_SYNCHRONIZATION
-
-	system_phase = SYNCHRONIZATION_PHASE;
-
-	SyncThread();
-
-	/* Synchronization completed: define common time-base for periodic tasks */
-	start_tick = osKernelGetTickCount();
-
-	system_phase = WORKING_PHASE;
-
-	HAL_GPIO_WritePin(RTR_OUT_GPIO_Port, RTR_OUT_Pin, GPIO_PIN_RESET);
-
-	#if LED_DEBUG
-	HAL_GPIO_WritePin(LedDebug_GPIO_Port, LedDebug_Pin, GPIO_PIN_SET);
-	#endif
-
-#endif
-
-	// Termination, if clock drift is not critical
-	osThreadTerminate(osThreadGetId());
-
-  /* USER CODE END StartSynchronization */
 }
 
 /* callbackToggleLeftRedLed function */
