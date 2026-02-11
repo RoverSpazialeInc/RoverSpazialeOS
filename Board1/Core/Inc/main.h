@@ -71,8 +71,6 @@ void Error_Handler(void);
 #define Encoder2A_GPIO_Port GPIOA
 #define Encoder2B_Pin GPIO_PIN_7
 #define Encoder2B_GPIO_Port GPIOA
-#define temp_adc_Pin GPIO_PIN_0
-#define temp_adc_GPIO_Port GPIOB
 #define WhiteLedRight_Pin GPIO_PIN_1
 #define WhiteLedRight_GPIO_Port GPIOB
 #define RedLedRight_Pin GPIO_PIN_2

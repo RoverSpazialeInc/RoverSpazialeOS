@@ -15,126 +15,73 @@
 
 /**
  * @file temperature_adc.c
- * @brief Implementation of the Temperature ADC driver using NTC thermistor.
+ * @brief Implementation of the Temperature ADC driver using the STM32 internal temperature sensor.
  *
  * This file contains the implementation of functions to initialize and read
- * temperature from an NTC thermistor (e.g. KY-028) connected via ADC.
+ * temperature from the MCU internal temperature sensor connected via ADC.
  */
 
 #include "driver/temperature_adc.h"
-#include <math.h>
 
 /**
- * @brief Initialize the temperature sensor structure.
+ * @brief Initialize the internal temperature sensor structure.
  *
- * Sets up the ADC handle, reference voltage, and loads default parameters for the KY-028 sensor.
+ * Sets up the ADC handle for reading the internal temperature sensor.
  *
  * @param temp Pointer to the sensor structure.
- * @param hadc Pointer to the ADC handle.
- * @param adc_vref ADC reference voltage.
+ * @param hadc Pointer to the ADC handle (must be configured for the internal temp sensor channel).
  */
-void temp_ky028_init(temp_ky028_t* temp, ADC_HandleTypeDef* hadc, float adc_vref) {
+void temp_internal_init(temp_internal_t* temp, ADC_HandleTypeDef* hadc) {
     temp->hadc = hadc;
-    temp->adc_vref = adc_vref;
     temp->adc_resolution = 4095;  // For 12-bit ADC
-
-    // Default parameters for KY-028 (NTC 10k @ 25°C, B=3950)
-    temp->ntc_r25 = NTC_RESISTANCE_25C;
-    temp->ntc_b = NTC_B_COEFFICIENT;
-    temp->series_r = SERIES_RESISTOR;
 }
 
 /**
- * @brief internal helper to read raw ADC value.
+ * @brief Read temperature from the internal temperature sensor.
  *
- * Starts the ADC, polls for conversion, reads the value, and stops the ADC.
- *
- * @param hadc Pointer to ADC handle.
- * @return uint32_t Raw ADC value (0 on failure).
- */
-static uint32_t read_adc_value(ADC_HandleTypeDef* hadc) {
-    uint32_t value = 0;
-    HAL_StatusTypeDef status;
-
-    if (hadc == NULL) {
-        return 0;
-    }
-
-    HAL_ADC_Start(hadc);
-    status = HAL_ADC_PollForConversion(hadc, 1);  // Timeout 1ms
-
-    if (status == HAL_OK) {
-        value = HAL_ADC_GetValue(hadc);
-    } else {
-        // Reading error
-        value = 0;
-    }
-
-    HAL_ADC_Stop(hadc);
-    return value;
-}
-
-/**
- * @brief Read the resistance of the NTC thermistor.
- *
- * Reads the ADC value, calculates voltage, and derives resistance based on the
- * voltage divider configuration.
- *
- * @param temp Pointer to the sensor structure.
- * @return float Measured resistance in Ohms (0 or INFINITY on error).
- */
-float temp_ky028_read_resistance(temp_ky028_t* temp) {
-    uint32_t adc_raw = 0;
-    float adc_voltage = 0;
-    float resistance = 0;
-
-    if (temp->hadc == NULL) {
-        return 0;
-    }
-
-    adc_raw = read_adc_value(temp->hadc);
-
-    if (adc_raw == 0 || adc_raw >= temp->adc_resolution) {
-        return 0;  // Reading error or saturation
-    }
-
-    adc_voltage = (adc_raw * temp->adc_vref) / temp->adc_resolution;
-    if (adc_voltage < temp->adc_vref) {
-        // If thermistor is connected to VCC, use this:
-        resistance = temp->series_r * ((temp->adc_vref - adc_voltage) / adc_voltage);
-    } else {
-        resistance = INFINITY;
-    }
-
-    return resistance;
-}
-
-/**
- * @brief Read the temperature from the sensor.
- *
- * High-level function to get temperature in Celsius.
+ * Starts the ADC conversion, waits for completion, reads the raw value,
+ * and converts it to temperature in Celsius using a linear approximation.
  *
  * @param temp Pointer to the sensor structure.
  * @param temperature Pointer to float where the temperature will be stored.
  * @return int8_t 0 on success, -1 on error.
  */
-int8_t temp_ky028_read_temperature(temp_ky028_t* temp, float* temperature) {
-    float resistance = temp_ky028_read_resistance(temp);
-
-    if (resistance <= 0) {
+int8_t temp_internal_read_temperature(temp_internal_t* temp, float* temperature) {
+    if (temp->hadc == NULL) {
         return TEMP_DRIVER_FAIL;
     }
 
-    if (isinf(resistance)) {
+    // Start ADC conversion for internal temperature sensor
+    HAL_ADC_Start(temp->hadc);
+
+    // Wait for conversion to complete
+    if (HAL_ADC_PollForConversion(temp->hadc, 1) != HAL_OK) {
+        HAL_ADC_Stop(temp->hadc);
         return TEMP_DRIVER_FAIL;
     }
 
-    *temperature = temp_ky028_resistance_to_temp(resistance, temp->ntc_r25, temp->ntc_b);
+    // Read the converted value
+    uint32_t adc_value = HAL_ADC_GetValue(temp->hadc);
+
+    HAL_ADC_Stop(temp->hadc);
+
+    // Convert ADC value to temperature using linear conversion
+    float temp_c = (adc_value / (float)temp->adc_resolution) * 100.0f;
+
+    // Limit value to supported range
+    if (temp_c < MIN_TEMPERATURE) {
+        temp_c = MIN_TEMPERATURE;
+    }
+    if (temp_c > MAX_TEMPERATURE) {
+        temp_c = MAX_TEMPERATURE;
+    }
+
+    *temperature = temp_c;
     return TEMP_DRIVER_OK;
 }
 
 /**
- * @brief Read the temperature from the sensor with averaging.
+ * @brief Read the temperature from the internal sensor with averaging.
  *
  * Takes multiple samples, ignores outliers/invalid readings, and averages the result.
  *
@@ -143,7 +90,7 @@ int8_t temp_ky028_read_temperature(temp_ky028_t* temp, float* temperature) {
  * @param temperature Pointer to float where the temperature will be stored.
  * @return int8_t 0 on success, -1 if no valid samples were obtained.
  */
-int8_t temp_ky028_read_temperature_avg(temp_ky028_t* temp, uint8_t samples, float* temperature) {
+int8_t temp_internal_read_temperature_avg(temp_internal_t* temp, uint8_t samples, float* temperature) {
     float sum = 0;
     uint8_t valid_samples = 0;
 
@@ -153,7 +100,7 @@ int8_t temp_ky028_read_temperature_avg(temp_ky028_t* temp, uint8_t samples, floa
 
     for (uint8_t i = 0; i < samples; i++) {
         float temp_val = 0;
-        if (temp_ky028_read_temperature(temp, &temp_val) == TEMP_DRIVER_OK) {
+        if (temp_internal_read_temperature(temp, &temp_val) == TEMP_DRIVER_OK) {
             if (temp_val > -200.0f && temp_val < 200.0f) {
                 sum += temp_val;
                 valid_samples++;
@@ -169,35 +116,4 @@ int8_t temp_ky028_read_temperature_avg(temp_ky028_t* temp, uint8_t samples, floa
 
     *temperature = sum / valid_samples;
     return TEMP_DRIVER_OK;
-}
-
-/**
- * @brief Convert resistance to temperature using the Beta parameter equation.
- *
- * Steinhart-Hart equation variation (Beta parameter equation).
- *
- * @param resistance Measured resistance.
- * @param r25 Resistance at 25°C.
- * @param b_coeff Beta coefficient.
- * @return float Temperature in Celsius.
- */
-float temp_ky028_resistance_to_temp(float resistance, float r25, float b_coeff) {
-    float temperature_k = 0;
-    float temperature_c = 0;
-
-    temperature_k = 1.0f / ((1.0f / NTC_TEMPERATURE_25C) +
-                          (1.0f / b_coeff) * logf(resistance / r25));
-
-    // Convert from Kelvin to Celsius
-    temperature_c = temperature_k - 273.15f;
-
-    // Limit value to supported range
-    if (temperature_c < MIN_TEMPERATURE) {
-        temperature_c = MIN_TEMPERATURE;
-    }
-    if (temperature_c > MAX_TEMPERATURE) {
-        temperature_c = MAX_TEMPERATURE;
-    }
-
-    return temperature_c;
 }

@@ -31,17 +31,17 @@ extern ADC_HandleTypeDef hadc1;
 /**
  * @brief Global temperature sensor instance.
  */
-temp_ky028_t temp_sensor;
+temp_internal_t temp_sensor;
 
 /**
  * @brief Initializes the temperature sensor subsystem.
  *
- * This function initializes the KY-028 temperature sensor structure with
- * the ADC handle and reference voltage.
+ * This function initializes the internal temperature sensor structure with
+ * the ADC handle configured for the internal temp sensor channel.
  *
  * @retval None
  */
 void temperature_sensor_init(){
-	temp_ky028_init(&temp_sensor, &hadc1, ADC_VREF);
+	temp_internal_init(&temp_sensor, &hadc1);
 
 }

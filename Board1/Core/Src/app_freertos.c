@@ -535,7 +535,7 @@ void StartReadTemperature(void *argument)
 #if REAL_TASK
 
 		float temp_val = 0.0f;
-		if (temp_ky028_read_temperature(&temp_sensor, &temp_val) == 0) {
+		if (temp_internal_read_temperature(&temp_sensor, &temp_val) == 0) {
 			task_temperature = (Temperature) temp_val;
 			temperature_read_failed = 0;
 		} else {

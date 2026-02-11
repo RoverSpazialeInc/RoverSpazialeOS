@@ -23,12 +23,10 @@
 
 #include "temperature_adc.h"
 
-#include "adc_constants.h"
-
 /**
- * @brief KY-028 Temperature sensor instance.
+ * @brief Internal temperature sensor instance.
  */
-extern temp_ky028_t temp_sensor;
+extern temp_internal_t temp_sensor;
 
 /**
  * @brief Initialize the temperature sensor.
