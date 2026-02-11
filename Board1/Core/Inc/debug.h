@@ -100,5 +100,12 @@
  */
 #define VERBOSE_DEBUG_IT 1
 
+/**
+ * @brief Enable Result Printing in Supervisor
+ * 1: Disables WCET timer, enables periodic result printing
+ * 0: Enables WCET timer, disables periodic result printing
+ */
+#define PRINT_RESULT 1
+
 
 

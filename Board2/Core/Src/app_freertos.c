@@ -664,6 +664,11 @@ void StartSupervisor(void *argument)
 
 	    system_phase = WORKING_PHASE;
 
+#if PRINT_RESULT
+		do {
+			Board2_step();
+		} while (Board2_Y.supervision_ended != 1);
+#else
 		/* START TIMER FOR MONITORING WCET */
 		timer_start(&timerSupervisor);
 
@@ -673,6 +678,7 @@ void StartSupervisor(void *argument)
 
 		/* STOP TIMER FOR MONITORING WCET */
 		timer_reset(&timerSupervisor);
+#endif
 
 		system_phase = SYNCHRONIZATION_SUPERVISOR;
 
@@ -686,11 +692,13 @@ void StartSupervisor(void *argument)
 //		printInt((int32_t)cycle_count);
 //		printNewLine();
 
-//		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
-//			printGlobalState(&Board2_Y.board2GlobalState);
-//			printDecision(&Board2_Y.board2Decision);
-//			cycle_count = 0;
-//		}
+		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
+#if PRINT_RESULT
+			printGlobalState(&Board2_Y.board2GlobalState);
+			printDecision(&Board2_Y.board2Decision);
+#endif
+			cycle_count = 0;
+		}
 
 		/* END PRINT SECTION */
 
