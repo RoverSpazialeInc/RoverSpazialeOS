@@ -719,6 +719,12 @@ static inline void actuate_white_leds(void) {
 }
 
 static inline void change_set_point(void) {
+	static BUS_SetPoint previous_set_point = { 0.0f, 0.0f };
+
+	if (BUS_SetPoint_Equals(&Board1_Y.board1Decision.setPoint, &previous_set_point) == 1){
+		return; // No change in set point
+	}
+
 	const float left = Board1_Y.board1Decision.setPoint.leftAxis;
 	const float right = Board1_Y.board1Decision.setPoint.rightAxis;
 
@@ -727,6 +733,8 @@ static inline void change_set_point(void) {
 
 	MotorControl_SetReferenceRPM(&motors[MOTOR_FRONT_RIGHT], right);
 	MotorControl_SetReferenceRPM(&motors[MOTOR_REAR_RIGHT], right);
+
+	previous_set_point = Board1_Y.board1Decision.setPoint;
 }
 
 static inline void change_regulator(void) {
