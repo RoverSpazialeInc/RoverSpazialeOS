@@ -61,6 +61,7 @@
 /* Private typedef -----------------------------------------------------------*/
 typedef StaticTask_t osStaticThreadDef_t;
 typedef StaticTimer_t osStaticTimerDef_t;
+typedef StaticSemaphore_t osStaticMutexDef_t;
 typedef StaticEventGroup_t osStaticEventGroupDef_t;
 /* USER CODE BEGIN PTD */
 
@@ -86,16 +87,20 @@ typedef StaticEventGroup_t osStaticEventGroupDef_t;
 /* USER CODE BEGIN Variables */
 
 /* Global start tick (set after synchronization) */
+/* Shared variable that does not require the use of a mutex because
+ * the synchronization task writes it once at the end of synchronization,
+ * and all other tasks only read it afterward.
+ */
 volatile uint32_t start_tick = 0;
 
-/* MISS COUNTERS */
+/* MISS COUNTERS, shared variables */
 volatile uint32_t MissReadController = 0;
 volatile uint32_t MissReadGyroscope = 0;
-volatile uint32_t MissSupervisor = 0;
 volatile uint32_t MissReadSonars = 0;
 volatile uint32_t MissPollingServer = 0;
+// Supervisor task doesn't require a deadline
 
-/* STATUS FLAGS */
+/* STATUS FLAGS, shared variables */
 uint8_t pad_receiver_read_failed = 0;
 uint8_t gyroscope_read_failed = 0;
 uint8_t sonar_read_failed = 0;
@@ -103,7 +108,7 @@ uint8_t sonar_read_failed = 0;
 /* DEFAULT VALUES */
 const BUS_RemoteController default_controller = { 0, 0, 0 };
 
-/* TASK OUTPUT VARIABLES (written by tasks, read by Supervisor) */
+/* TASK OUTPUT VARIABLES, shared variables */
 volatile BUS_RemoteController task_remoteController = { 0, 0, 0 };
 volatile Gyroscope task_gyroscope = 0;
 volatile BUS_Sonar task_sonar = { 0, 0, 0 };
@@ -216,6 +221,102 @@ const osTimerAttr_t SonarMonitoring_attributes = {
   .cb_mem = &SonarMonitoringControlBlock,
   .cb_size = sizeof(SonarMonitoringControlBlock),
 };
+/* Definitions for controller_mutex */
+osMutexId_t controller_mutexHandle;
+osStaticMutexDef_t controller_mutexControlBlock;
+const osMutexAttr_t controller_mutex_attributes = {
+  .name = "controller_mutex",
+  .cb_mem = &controller_mutexControlBlock,
+  .cb_size = sizeof(controller_mutexControlBlock),
+};
+/* Definitions for gyroscope_mutex */
+osMutexId_t gyroscope_mutexHandle;
+osStaticMutexDef_t gyroscope_mutexControlBlock;
+const osMutexAttr_t gyroscope_mutex_attributes = {
+  .name = "gyroscope_mutex",
+  .cb_mem = &gyroscope_mutexControlBlock,
+  .cb_size = sizeof(gyroscope_mutexControlBlock),
+};
+/* Definitions for sonar_left_mutex */
+osMutexId_t sonar_left_mutexHandle;
+osStaticMutexDef_t sonar_left_mutexControlBlock;
+const osMutexAttr_t sonar_left_mutex_attributes = {
+  .name = "sonar_left_mutex",
+  .cb_mem = &sonar_left_mutexControlBlock,
+  .cb_size = sizeof(sonar_left_mutexControlBlock),
+};
+/* Definitions for sonar_front_mutex */
+osMutexId_t sonar_front_mutexHandle;
+osStaticMutexDef_t sonar_front_mutexControlBlock;
+const osMutexAttr_t sonar_front_mutex_attributes = {
+  .name = "sonar_front_mutex",
+  .cb_mem = &sonar_front_mutexControlBlock,
+  .cb_size = sizeof(sonar_front_mutexControlBlock),
+};
+/* Definitions for sonar_right_mutex */
+osMutexId_t sonar_right_mutexHandle;
+osStaticMutexDef_t sonar_right_mutexControlBlock;
+const osMutexAttr_t sonar_right_mutex_attributes = {
+  .name = "sonar_right_mutex",
+  .cb_mem = &sonar_right_mutexControlBlock,
+  .cb_size = sizeof(sonar_right_mutexControlBlock),
+};
+/* Definitions for controller_read_mutex */
+osMutexId_t controller_read_mutexHandle;
+osStaticMutexDef_t controller_read_mutexControlBlock;
+const osMutexAttr_t controller_read_mutex_attributes = {
+  .name = "controller_read_mutex",
+  .cb_mem = &controller_read_mutexControlBlock,
+  .cb_size = sizeof(controller_read_mutexControlBlock),
+};
+/* Definitions for gyroscope_read_mutex */
+osMutexId_t gyroscope_read_mutexHandle;
+osStaticMutexDef_t gyroscope_read_mutexControlBlock;
+const osMutexAttr_t gyroscope_read_mutex_attributes = {
+  .name = "gyroscope_read_mutex",
+  .cb_mem = &gyroscope_read_mutexControlBlock,
+  .cb_size = sizeof(gyroscope_read_mutexControlBlock),
+};
+/* Definitions for sonar_read_mutex */
+osMutexId_t sonar_read_mutexHandle;
+osStaticMutexDef_t sonar_read_mutexControlBlock;
+const osMutexAttr_t sonar_read_mutex_attributes = {
+  .name = "sonar_read_mutex",
+  .cb_mem = &sonar_read_mutexControlBlock,
+  .cb_size = sizeof(sonar_read_mutexControlBlock),
+};
+/* Definitions for controller_deadline_mutex */
+osMutexId_t controller_deadline_mutexHandle;
+osStaticMutexDef_t controller_deadline_mutexControlBlock;
+const osMutexAttr_t controller_deadline_mutex_attributes = {
+  .name = "controller_deadline_mutex",
+  .cb_mem = &controller_deadline_mutexControlBlock,
+  .cb_size = sizeof(controller_deadline_mutexControlBlock),
+};
+/* Definitions for gyroscope_deadline_mutex */
+osMutexId_t gyroscope_deadline_mutexHandle;
+osStaticMutexDef_t gyroscope_deadline_mutexControlBlock;
+const osMutexAttr_t gyroscope_deadline_mutex_attributes = {
+  .name = "gyroscope_deadline_mutex",
+  .cb_mem = &gyroscope_deadline_mutexControlBlock,
+  .cb_size = sizeof(gyroscope_deadline_mutexControlBlock),
+};
+/* Definitions for sonar_deadline_mutex */
+osMutexId_t sonar_deadline_mutexHandle;
+osStaticMutexDef_t sonar_deadline_mutexControlBlock;
+const osMutexAttr_t sonar_deadline_mutex_attributes = {
+  .name = "sonar_deadline_mutex",
+  .cb_mem = &sonar_deadline_mutexControlBlock,
+  .cb_size = sizeof(sonar_deadline_mutexControlBlock),
+};
+/* Definitions for ps_deadline_mutex */
+osMutexId_t ps_deadline_mutexHandle;
+osStaticMutexDef_t ps_deadline_mutexControlBlock;
+const osMutexAttr_t ps_deadline_mutex_attributes = {
+  .name = "ps_deadline_mutex",
+  .cb_mem = &ps_deadline_mutexControlBlock,
+  .cb_size = sizeof(ps_deadline_mutexControlBlock),
+};
 /* Definitions for flagsOS */
 osEventFlagsId_t flagsOSHandle;
 osStaticEventGroupDef_t flagsOSControlBlock;
@@ -231,7 +332,7 @@ const osEventFlagsAttr_t flagsOS_attributes = {
 /* SCHEDULING FUNCTIONS */
 static uint32_t ms_to_ticks(uint32_t ms);
 static void periodic_wait(uint32_t *next_release, uint32_t period_ticks,
-		volatile uint32_t *miss_counter);
+		volatile uint32_t *miss_counter, osMutexId_t miss_mutex);
 
 /* DECISION FUNCTIONS */
 static inline void compute_sensors_validity(uint8_t *out_validity);
@@ -271,6 +372,42 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
+  /* Create the mutex(es) */
+  /* creation of controller_mutex */
+  controller_mutexHandle = osMutexNew(&controller_mutex_attributes);
+
+  /* creation of gyroscope_mutex */
+  gyroscope_mutexHandle = osMutexNew(&gyroscope_mutex_attributes);
+
+  /* creation of sonar_left_mutex */
+  sonar_left_mutexHandle = osMutexNew(&sonar_left_mutex_attributes);
+
+  /* creation of sonar_front_mutex */
+  sonar_front_mutexHandle = osMutexNew(&sonar_front_mutex_attributes);
+
+  /* creation of sonar_right_mutex */
+  sonar_right_mutexHandle = osMutexNew(&sonar_right_mutex_attributes);
+
+  /* creation of controller_read_mutex */
+  controller_read_mutexHandle = osMutexNew(&controller_read_mutex_attributes);
+
+  /* creation of gyroscope_read_mutex */
+  gyroscope_read_mutexHandle = osMutexNew(&gyroscope_read_mutex_attributes);
+
+  /* creation of sonar_read_mutex */
+  sonar_read_mutexHandle = osMutexNew(&sonar_read_mutex_attributes);
+
+  /* creation of controller_deadline_mutex */
+  controller_deadline_mutexHandle = osMutexNew(&controller_deadline_mutex_attributes);
+
+  /* creation of gyroscope_deadline_mutex */
+  gyroscope_deadline_mutexHandle = osMutexNew(&gyroscope_deadline_mutex_attributes);
+
+  /* creation of sonar_deadline_mutex */
+  sonar_deadline_mutexHandle = osMutexNew(&sonar_deadline_mutex_attributes);
+
+  /* creation of ps_deadline_mutex */
+  ps_deadline_mutexHandle = osMutexNew(&ps_deadline_mutex_attributes);
 
   /* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
@@ -321,7 +458,6 @@ void MX_FREERTOS_Init(void) {
 	/* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
-  /* Create the event(s) */
   /* creation of flagsOS */
   flagsOSHandle = osEventFlagsNew(&flagsOS_attributes);
 
@@ -428,9 +564,18 @@ void StartPollingServer(void *argument)
             
             /* ---------------- REMOTE CONTROLLER ---------------- */
             if (flags & FLAG_PAD_OK) {
-            	// Casting for volatile qualifier
-                PadReceiver_Read((BUS_RemoteController*) &task_remoteController);
+
+                BUS_RemoteController rc_val = { 0, 0, 0 };
+                PadReceiver_Read(&rc_val);
+
+                osMutexAcquire(controller_mutexHandle, osWaitForever);
+                task_remoteController = rc_val;
+                osMutexRelease(controller_mutexHandle);
+
+                osMutexAcquire(controller_read_mutexHandle, osWaitForever);
                 pad_receiver_read_failed = 0;
+                osMutexRelease(controller_read_mutexHandle);
+
                 // Clear both to prioritize OK and prevent double handling
                 osEventFlagsClear(flagsOSHandle, FLAG_PAD_OK | FLAG_PAD_ERROR);
             }
@@ -442,8 +587,17 @@ void StartPollingServer(void *argument)
             /* ------------------- GYROSCOPE ------------------- */
             if (flags & FLAG_GYRO_OK) {
                 MPU6050_Process_Yaw_IT_Data();
-                task_gyroscope = MPU6050_Yaw.KalmanAngleZ;
+
+                Gyroscope gyro_val = MPU6050_Yaw.KalmanAngleZ;
+
+                osMutexAcquire(gyroscope_mutexHandle, osWaitForever);
+                task_gyroscope = gyro_val;
+                osMutexRelease(gyroscope_mutexHandle);
+
+                osMutexAcquire(gyroscope_read_mutexHandle, osWaitForever);
                 gyroscope_read_failed = 0;
+                osMutexRelease(gyroscope_read_mutexHandle);
+
                 osEventFlagsClear(flagsOSHandle, FLAG_GYRO_OK | FLAG_GYRO_ERROR);
             }
             else if (flags & FLAG_GYRO_ERROR) {
@@ -454,7 +608,11 @@ void StartPollingServer(void *argument)
             /* ------------------ SONAR LEFT ------------------- */
             if (flags & FLAG_SONAR_LEFT_OK) {
                 hcsr04_process_distance(&sonarLeft);
+
+                osMutexAcquire(sonar_left_mutexHandle, osWaitForever);
                 task_sonar.left = sonarLeft.distance;
+                osMutexRelease(sonar_left_mutexHandle);
+
                 osEventFlagsClear(flagsOSHandle, FLAG_SONAR_LEFT_OK | FLAG_SONAR_LEFT_TIMEOUT);
             }
             else if (flags & FLAG_SONAR_LEFT_TIMEOUT) {
@@ -465,7 +623,11 @@ void StartPollingServer(void *argument)
             /* ------------------ SONAR FRONT ------------------ */
             if (flags & FLAG_SONAR_FRONT_OK) {
                 hcsr04_process_distance(&sonarFront);
+
+                osMutexAcquire(sonar_front_mutexHandle, osWaitForever);
                 task_sonar.front = sonarFront.distance;
+                osMutexRelease(sonar_front_mutexHandle);
+
                 osEventFlagsClear(flagsOSHandle, FLAG_SONAR_FRONT_OK | FLAG_SONAR_FRONT_TIMEOUT);
             }
             else if (flags & FLAG_SONAR_FRONT_TIMEOUT) {
@@ -476,7 +638,11 @@ void StartPollingServer(void *argument)
             /* ------------------ SONAR RIGHT ------------------ */
             if (flags & FLAG_SONAR_RIGHT_OK) {
                 hcsr04_process_distance(&sonarRight);
+
+                osMutexAcquire(sonar_right_mutexHandle, osWaitForever);
                 task_sonar.right = sonarRight.distance;
+                osMutexRelease(sonar_right_mutexHandle);
+
                 osEventFlagsClear(flagsOSHandle, FLAG_SONAR_RIGHT_OK | FLAG_SONAR_RIGHT_TIMEOUT);
             }
             else if (flags & FLAG_SONAR_RIGHT_TIMEOUT) {
@@ -505,7 +671,7 @@ void StartPollingServer(void *argument)
 
 #endif
 
-        periodic_wait(&next, T, &MissPollingServer);
+        periodic_wait(&next, T, &MissPollingServer, ps_deadline_mutexHandle);
 
     }
 
@@ -565,7 +731,7 @@ void StartReadController(void *argument)
 #endif
 
 		/* Wait until next period and track deadline miss if any */
-		periodic_wait(&next, T, &MissReadController);
+		periodic_wait(&next, T, &MissReadController, controller_deadline_mutexHandle);
 	}
 #endif
 
@@ -626,7 +792,7 @@ void StartReadGyroscope(void *argument)
 #endif
 
 		/* Wait until next period and track deadline miss if any */
-		periodic_wait(&next, T, &MissReadGyroscope);
+		periodic_wait(&next, T, &MissReadGyroscope, gyroscope_deadline_mutexHandle);
 	}
 #endif
 	osThreadTerminate(osThreadGetId());
@@ -727,7 +893,7 @@ void StartSupervisorDeg(void *argument)
 	uint32_t next = start_tick;
 
 	/* Sleep until next release after supervisor unlock */
-	periodic_wait(&next, T, &MissSupervisor);
+	periodic_wait(&next, T, NULL, NULL);
 
 	printMsg("Entering Degraded Mode...\r\n");
 	/* Infinite loop */
@@ -777,7 +943,7 @@ void StartSupervisorDeg(void *argument)
 			MotorControl_OpenLoopActuate(&motors[i]);
 		}
 
-		periodic_wait(&next, T, &MissSupervisor);
+		periodic_wait(&next, T, NULL, NULL);
 	}
 
 	osThreadTerminate(osThreadGetId());
@@ -823,7 +989,7 @@ void StartReadSonars(void *argument)
 #endif
 
 		/* Wait until next period and track deadline miss if any */
-		periodic_wait(&next, T, &MissReadSonars);
+		periodic_wait(&next, T, &MissReadSonars, sonar_deadline_mutexHandle);
 	}
 
 #endif
@@ -860,7 +1026,7 @@ static uint32_t ms_to_ticks(uint32_t ms) {
 }
 
 static void periodic_wait(uint32_t *next_release, uint32_t period_ticks,
-		volatile uint32_t *miss_counter) {
+		volatile uint32_t *miss_counter, osMutexId_t miss_mutex) {
 	uint32_t now = osKernelGetTickCount();
 
 	/* Calcola il prossimo rilascio */
@@ -869,7 +1035,13 @@ static void periodic_wait(uint32_t *next_release, uint32_t period_ticks,
 	/* Controllo deadline miss (safe con wrap-around) */
 	if ((int32_t) (now - *next_release) > 0) {
 		if (miss_counter != NULL) {
+			if (miss_mutex != NULL) {
+				osMutexAcquire(miss_mutex, osWaitForever);
+			}
 			(*miss_counter)++;
+			if (miss_mutex != NULL) {
+				osMutexRelease(miss_mutex);
+			}
 		}
 	}
 
@@ -882,50 +1054,81 @@ static void periodic_wait(uint32_t *next_release, uint32_t period_ticks,
 static inline void compute_sensors_validity(uint8_t *out_validity) {
 	/* Convert singular errors into global flags for the Simulink model */
 	uint8_t temp = 0;
-	temp |= (pad_receiver_read_failed & 0x01) << 0;
-	temp |= (gyroscope_read_failed    & 0x01) << 1;
-	temp |= (sonar_read_failed        & 0x01) << 2;
-	*out_validity = temp;
 
-	/* Clear previous error flags */
+	osMutexAcquire(controller_read_mutexHandle, osWaitForever);
+	temp |= (pad_receiver_read_failed & 0x01) << 0;
 	pad_receiver_read_failed = 0;
+	osMutexRelease(controller_read_mutexHandle);
+
+	osMutexAcquire(gyroscope_read_mutexHandle, osWaitForever);
+	temp |= (gyroscope_read_failed    & 0x01) << 1;
 	gyroscope_read_failed = 0;
+	osMutexRelease(gyroscope_read_mutexHandle);
+
+	osMutexAcquire(sonar_read_mutexHandle, osWaitForever);
+	temp |= (sonar_read_failed        & 0x01) << 2;
 	sonar_read_failed = 0;
+	osMutexRelease(sonar_read_mutexHandle);
+
+	*out_validity = temp;
 }
 
 static inline void compute_deadline_misses(uint8_t *out_deadline) {
 	/* Convert non-zero miss counters into a bitmask for the Simulink model */
 	uint8_t temp = 0;
 
+	osMutexAcquire(controller_deadline_mutexHandle, osWaitForever);
 	if (MissReadController != 0) {
 		temp |= (1u << 0);
 		MissReadController = 0;
 	}
+	osMutexRelease(controller_deadline_mutexHandle);
+
+	osMutexAcquire(gyroscope_deadline_mutexHandle, osWaitForever);
 	if (MissReadGyroscope != 0) {
 		temp |= (1u << 1);
 		MissReadGyroscope = 0;
 	}
-	if (MissSupervisor != 0) {
-		temp |= (1u << 2);
-		MissSupervisor = 0;
-	}
+	osMutexRelease(gyroscope_deadline_mutexHandle);
+
+	osMutexAcquire(sonar_deadline_mutexHandle, osWaitForever);
 	if (MissReadSonars != 0) {
 		temp |= (1u << 3);
 		MissReadSonars = 0;
 	}
+	osMutexRelease(sonar_deadline_mutexHandle);
+
+	osMutexAcquire(ps_deadline_mutexHandle, osWaitForever);
 	if (MissPollingServer != 0) {
 		temp |= (1u << 4);
 		MissPollingServer = 0;
 	}
+	osMutexRelease(ps_deadline_mutexHandle);
 
 	*out_deadline = temp;
 }
 
 static inline void copy_sensor_inputs(BUS_RemoteController *out_rc,
 		Gyroscope *out_gyro, BUS_Sonar *out_sonar) {
+	osMutexAcquire(controller_mutexHandle, osWaitForever);
 	*out_rc = task_remoteController;
+	osMutexRelease(controller_mutexHandle);
+
+	osMutexAcquire(gyroscope_mutexHandle, osWaitForever);
 	*out_gyro = task_gyroscope;
-	*out_sonar = task_sonar;
+	osMutexRelease(gyroscope_mutexHandle);
+
+	osMutexAcquire(sonar_left_mutexHandle, osWaitForever);
+	out_sonar->left = task_sonar.left;
+	osMutexRelease(sonar_left_mutexHandle);
+
+	osMutexAcquire(sonar_front_mutexHandle, osWaitForever);
+	out_sonar->front = task_sonar.front;
+	osMutexRelease(sonar_front_mutexHandle);
+
+	osMutexAcquire(sonar_right_mutexHandle, osWaitForever);
+	out_sonar->right = task_sonar.right;
+	osMutexRelease(sonar_right_mutexHandle);
 }
 
 static inline void change_set_point(void) {
@@ -942,16 +1145,26 @@ static inline void change_set_point(void) {
 
 /* ERROR DRIVER FUNCTIONS */
 static inline void error_pad_receiver(void){
-	Board2_U.remoteController = default_controller;
+	osMutexAcquire(controller_mutexHandle, osWaitForever);
+	task_remoteController = default_controller;
+	osMutexRelease(controller_mutexHandle);
+
+	osMutexAcquire(controller_read_mutexHandle, osWaitForever);
 	pad_receiver_read_failed = 1;
+	osMutexRelease(controller_read_mutexHandle);
 }
 
 static inline void error_gyroscope(void){
-	// Board2_U.gyroscope; Preserve last valid data
+	// task_gyroscope: Preserve last valid data (no write needed)
+
+	osMutexAcquire(gyroscope_read_mutexHandle, osWaitForever);
 	gyroscope_read_failed = 1;
+	osMutexRelease(gyroscope_read_mutexHandle);
 }
 static inline void error_sonar(void){
+	osMutexAcquire(sonar_read_mutexHandle, osWaitForever);
 	sonar_read_failed = 1;
+	osMutexRelease(sonar_read_mutexHandle);
 }
 
 /* PRODUCTION FUNCTIONS */
