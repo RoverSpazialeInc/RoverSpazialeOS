@@ -32,6 +32,7 @@
 #include "uart_functions.h"
 #include "print.h"
 #include "motors_init.h"
+#include "Board1.h"
 
 // Extern thread handles
 extern osThreadId_t PIDHandle;
@@ -158,6 +159,8 @@ static inline void killPeripherals(void) {
  */
 void enterDegraded() {
 	printMsg("Entering degraded mode...\n");
+	printGlobalState(&Board1_Y.board1GlobalState);
+	printDecision(&Board1_Y.board1Decision);
 	killTasks();
 	killPeripherals();
 	(void) osThreadTerminate(osThreadGetId());
@@ -171,6 +174,8 @@ void enterDegraded() {
  */
 void enterEmergency() {
 	printMsg("Entering emergency mode...\n");
+	printGlobalState(&Board1_Y.board1GlobalState);
+	printDecision(&Board1_Y.board1Decision);
 	killTasks();
 	killPeripherals();
 	(void) osThreadTerminate(osThreadGetId());
@@ -183,6 +188,8 @@ void enterEmergency() {
  */
 void enterFaulty() {
 	printMsg("Entering faulty mode...\n");
+	printGlobalState(&Board1_Y.board1GlobalState);
+	printDecision(&Board1_Y.board1Decision);
 	killTasks();
 	killPeripherals();
 	(void) osThreadTerminate(osThreadGetId());

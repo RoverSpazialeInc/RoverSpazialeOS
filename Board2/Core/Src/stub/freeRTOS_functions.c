@@ -151,8 +151,8 @@ extern osEventFlagsId_t flagsOSHandle;
  */
 void enterDegraded(){
 	printMsg("Entering degraded mode...\n");
-	killTasks();
-	killPeripherals();
+	//killTasks();
+	//killPeripherals();
 	osEventFlagsSet(flagsOSHandle, FLAG_DEGRADED);
     (void)osThreadTerminate(osThreadGetId());
 }

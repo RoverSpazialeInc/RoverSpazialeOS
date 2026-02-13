@@ -158,6 +158,12 @@ void printBattery(uint8_t b);
  */
 void printSensorReadings(uint8_t readings);
 
+/**
+ * @brief Prints deadline occurred flag.
+ * @param deadlineOccurred Non-zero if a deadline was missed.
+ */
+void printDeadlineOccurred(uint8_t deadlineOccurred);
+
 /* Elementary used in LocalStateB2 */
 
 /**

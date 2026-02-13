@@ -830,12 +830,16 @@ void StartSupervisor(void *argument)
 		compute_sensors_validity(&Board2_U.areSensorsValid);
 		compute_deadline_misses(&Board2_U.deadlineOccurred);
 
-		Board2_U.areSensorsValid = 0;
-		Board2_U.deadlineOccurred = 0;
+
 
 		manage_fake_sonar_toggle(&Board2_U.remoteController, &Board2_U.sonar);
 
 	    system_phase = WORKING_PHASE;
+
+		/* Abort checks */
+//		Board2_U.areSensorsValid = 0;
+//		Board2_U.deadlineOccurred = 0;
+
 
 #if PRINT_RESULT
 		do {
@@ -902,7 +906,6 @@ void StartSupervisorDeg(void *argument)
 	/* Sleep until next release after supervisor unlock */
 	periodic_wait(&next, T, NULL, NULL);
 
-	printMsg("Entering Degraded Mode...\r\n");
 	/* Infinite loop */
 	for (;;) {
 
@@ -912,9 +915,10 @@ void StartSupervisorDeg(void *argument)
 		compute_sensors_validity(&Board2Degraded_U.areSensorsValid);
 		compute_deadline_misses(&Board2Degraded_U.deadlineOccurred);
 
-		Board2Degraded_U.areSensorsValid = 0;
-		Board2Degraded_U.deadlineOccurred = 0;
 
+		/* Abort checks */
+//		Board2Degraded_U.areSensorsValid = 0;
+//		Board2Degraded_U.deadlineOccurred = 0;
 
 
 		manage_fake_sonar_toggle(&Board2Degraded_U.remoteController, &Board2Degraded_U.sonar);

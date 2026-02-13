@@ -515,13 +515,20 @@ void StartSupervisor(void *argument) {
 		compute_sensors_validity(&Board1_U.areSensorsValid);
 		compute_deadline_misses(&Board1_U.deadlineOccurred);
 
-		Board1_U.areSensorsValid = 0;
-		Board1_U.deadlineOccurred = 0;
+
 
 #if ENTER_DEGRADED_MODE
 		// In this way the boards will dedice together to enter in degraded mode
 		Board1_U.areSensorsValid = 1;
 #endif
+
+		/* Abort checks */
+		if(Board1_U.batteryLevel < 23) {
+			Board1_U.batteryLevel  = 40;
+		}
+
+//		Board1_U.areSensorsValid = 0;
+//		Board1_U.deadlineOccurred = 0;
 
 #if PRINT_RESULT
 		do {

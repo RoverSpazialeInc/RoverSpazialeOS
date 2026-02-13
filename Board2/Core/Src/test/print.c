@@ -277,6 +277,17 @@ void printSensorReadings(uint8_t readings)
     uartPrint(msg);
 }
 
+/**
+ * @brief Prints deadline occurred flag.
+ * @param deadlineOccurred Non-zero if a deadline was missed.
+ */
+void printDeadlineOccurred(uint8_t deadlineOccurred)
+{
+    char msg[64];
+    snprintf(msg, sizeof(msg), "  DeadlineOccurred: %u\r\n", (unsigned int)deadlineOccurred);
+    uartPrint(msg);
+}
+
 
 void printLocalStateB1(const BUS_LocalStateB1 *s)
 {
@@ -287,6 +298,7 @@ void printLocalStateB1(const BUS_LocalStateB1 *s)
     printTemperature(s->temperature);
     printBattery(s->batteryLevel);
     printSensorReadings(s->sensorReadings);
+    printDeadlineOccurred(s->deadlineOccurred);
 }
 
 /* ---- LocalStateB2 ---- */
@@ -340,6 +352,7 @@ void printLocalStateB2(const BUS_LocalStateB2 *s)
     printGyroscope(s->gyroscope);
     printRemoteController(&s->remoteController);
     printSensorReadings(s->sensorReadings);
+    printDeadlineOccurred(s->deadlineOccurred);
 }
 
 /* ---- GlobalState ---- */
