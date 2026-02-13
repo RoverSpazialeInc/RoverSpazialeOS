@@ -1,19 +1,26 @@
 /* USER CODE BEGIN Header */
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
- ******************************************************************************
- * File Name          : app_freertos.c
- * Description        : Code for freertos applications
- ******************************************************************************
- * @attention
+ * @file app_freertos.c
+ * @brief FreeRTOS application entry point and task definitions for Board2.
  *
- * Copyright (c) 2026 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
+ * Contains all RTOS task implementations (ReadController, ReadGyroscope,
+ * ReadSonars, Supervisor, Synchronization, PollingServer, Segger), timer
+ * callbacks, and shared variables for the Board2 real-time control application.
  */
 /* USER CODE END Header */
 
