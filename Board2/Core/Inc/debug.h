@@ -106,6 +106,6 @@
  * 1: Disables WCET timer, enables periodic result printing
  * 0: Enables WCET timer, disables periodic result printing
  */
-#define PRINT_RESULT 1
+#define PRINT_RESULT 0
 
 
