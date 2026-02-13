@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Board1'.
  *
- * Model version                  : 14.9
+ * Model version                  : 15.8
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Wed Feb 11 19:38:02 2026
+ * C/C++ source code generated on : Fri Feb 13 16:28:12 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -1404,7 +1404,7 @@ void Board1_step(void)
         Board1_DW.is_RoverState = IN_UpdateCommunicationLinkHealt;
         Board1_B.cycleResult = Board1_DW.commCycleStatus;
 
-        /* ModelReference: '<Root>/Model' */
+        /* ModelReference: '<Root>/CommunicationLinkHealth' */
         C_UpdateCommunicationLinkHealth(&Board1_B.cycleResult,
           &Board1_B.communicationLinkHealth);
       } else {
@@ -1701,7 +1701,7 @@ void Board1_step(void)
           Board1_DW.is_RoverState = IN_UpdateCommunicationLinkHealt;
           Board1_B.cycleResult = Board1_DW.commCycleStatus;
 
-          /* ModelReference: '<Root>/Model' */
+          /* ModelReference: '<Root>/CommunicationLinkHealth' */
           C_UpdateCommunicationLinkHealth(&Board1_B.cycleResult,
             &Board1_B.communicationLinkHealth);
           break;
@@ -1774,7 +1774,7 @@ void Board1_initialize(void)
   /* Model Initialize function for ModelReference Block: '<Root>/BoardsHealth' */
   BoardsHealth_initialize(rtmGetErrorStatusPointer(Board1_M));
 
-  /* Model Initialize function for ModelReference Block: '<Root>/Model' */
+  /* Model Initialize function for ModelReference Block: '<Root>/CommunicationLinkHealth' */
   CommunicationLinkHea_initialize(rtmGetErrorStatusPointer(Board1_M));
 
   /* Model Initialize function for ModelReference Block: '<Root>/MotorsHealth' */
@@ -1799,7 +1799,7 @@ void Board1_initialize(void)
   /* SystemInitialize for ModelReference: '<Root>/BoardsHealth' */
   BoardsHealth_Init();
 
-  /* SystemInitialize for ModelReference: '<Root>/Model' */
+  /* SystemInitialize for ModelReference: '<Root>/CommunicationLinkHealth' */
   CommunicationLinkHealth_Init();
 
   /* SystemInitialize for ModelReference: '<Root>/MotorsHealth' incorporates:
