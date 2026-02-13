@@ -31,6 +31,7 @@
 #include "i2c.h"
 #include "uart_functions.h"
 #include "print.h"
+#include "board2.h"
 #include "motors_init.h"
 
 // Extern thread handles
@@ -151,6 +152,8 @@ extern osEventFlagsId_t flagsOSHandle;
  */
 void enterDegraded(){
 	printMsg("Entering degraded mode...\n");
+	printGlobalState(&Board2_Y.board2GlobalState);
+	printDecision(&Board2_Y.board2Decision);
 	//killTasks();
 	//killPeripherals();
 	osEventFlagsSet(flagsOSHandle, FLAG_DEGRADED);
@@ -165,6 +168,8 @@ void enterDegraded(){
  */
 void enterEmergency(){
 	printMsg("Entering emergency mode...\n");
+	printGlobalState(&Board2_Y.board2GlobalState);
+	printDecision(&Board2_Y.board2Decision);
     killTasks();
     killPeripherals();
 }
@@ -176,6 +181,8 @@ void enterEmergency(){
  */
 void enterFaulty(){
 	printMsg("Entering faulty mode...\n");
+	printGlobalState(&Board2_Y.board2GlobalState);
+	printDecision(&Board2_Y.board2Decision);
     killTasks();
     killPeripherals();
 }
