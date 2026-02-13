@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Board2Degraded'.
  *
- * Model version                  : 10.2
+ * Model version                  : 10.5
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Wed Feb 11 20:26:41 2026
+ * C/C++ source code generated on : Fri Feb 13 16:46:04 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -27,8 +27,8 @@
 
 #include "Board2Degraded_types.h"
 #include "sensors.h"
-#include "states.h"
 #include "decision.h"
+#include "states.h"
 #include "decision_enums.h"
 
 /* Macros for accessing real-time model data structure */
@@ -56,7 +56,6 @@
 /* Block signals (default storage) */
 typedef struct {
   BUS_LocalStateB2 board2LocalState;   /* '<Root>/SupervisorB2' */
-  BUS_SetPoint setPoint;               /* '<Root>/ActionsModel' */
   ENUM_UserAction computedUserAction;  /* '<Root>/SupervisorB2' */
   ENUM_Error errorB2;                  /* '<Root>/SupervisorB2' */
   ENUM_BoardStatus StatusBoard2;       /* '<Root>/Board2Health' */
@@ -82,6 +81,7 @@ typedef struct {
 /* External outputs (root outports fed by signals with default storage) */
 typedef struct {
   uint8_T supervision_ended;           /* '<Root>/supervision_ended' */
+  BUS_SetPoint setPoint;               /* '<Root>/setPoint' */
 } ExtY_Board2Degraded_T;
 
 /* Real-time Model Data Structure */

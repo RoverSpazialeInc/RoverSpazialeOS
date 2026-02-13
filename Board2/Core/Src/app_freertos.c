@@ -943,7 +943,7 @@ void StartSupervisorDeg(void *argument)
 //
 		if (cycle_count >= 100) { // Approx 2 seconds (50ms * 40)
 			printLocalStateB2(&Board2Degraded_B.board2LocalState);
-			printSetPoint(&Board2Degraded_B.setPoint);
+			printSetPoint(&Board2Degraded_Y.setPoint);
 			cycle_count = 0;
 		}
 
@@ -1143,8 +1143,8 @@ static inline void copy_sensor_inputs(BUS_RemoteController *out_rc,
 }
 
 static inline void change_set_point(void) {
-	const float left = Board2Degraded_B.setPoint.leftAxis;
-	const float right = Board2Degraded_B.setPoint.rightAxis;
+	const float left = Board2Degraded_Y.setPoint.leftAxis;
+	const float right = Board2Degraded_Y.setPoint.rightAxis;
 
 	MotorControl_SetReferenceRPM(&motors[MOTOR_FRONT_LEFT], left);
 	MotorControl_SetReferenceRPM(&motors[MOTOR_REAR_LEFT], left);

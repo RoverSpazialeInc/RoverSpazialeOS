@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Board2Degraded'.
  *
- * Model version                  : 10.2
+ * Model version                  : 10.5
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Wed Feb 11 20:26:41 2026
+ * C/C++ source code generated on : Fri Feb 13 16:46:04 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M

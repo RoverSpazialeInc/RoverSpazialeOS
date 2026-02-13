@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Board2Degraded'.
  *
- * Model version                  : 10.2
+ * Model version                  : 10.5
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Wed Feb 11 20:26:41 2026
+ * C/C++ source code generated on : Fri Feb 13 16:46:04 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -206,12 +206,14 @@ void Board2Degraded_step(void)
        case Board2_IN_UserActionComputation:
         Board2Degraded_DW.is_SupervisorActive = Board_IN_RoverActionComputation;
 
-        /* ModelReference: '<Root>/ActionsModel' */
+        /* ModelReference: '<Root>/ActionsModel' incorporates:
+         *  Outport: '<Root>/setPoint'
+         */
         ActionsDegra_ComputeRoverAction(&Board2Degraded_B.computedUserAction,
           &Board2Degraded_B.board2LocalState.remoteController.x_lever,
           &Board2Degraded_B.board2LocalState.remoteController.y_lever,
           &Board2Degraded_B.board2LocalState.gyroscope,
-          &Board2Degraded_B.board2LocalState.sonar, &Board2Degraded_B.setPoint);
+          &Board2Degraded_B.board2LocalState.sonar, &Board2Degraded_Y.setPoint);
         break;
 
        case IN_ValidateReceivedSensorReadin:
@@ -302,8 +304,10 @@ void Board2Degraded_initialize(void)
   /* Model Initialize function for ModelReference Block: '<Root>/Board2Health' */
   Board2Health_initialize(rtmGetErrorStatusPointer(Board2Degraded_M));
 
-  /* SystemInitialize for ModelReference: '<Root>/ActionsModel' */
-  ActionsDegradedModel_Init(&Board2Degraded_B.setPoint);
+  /* SystemInitialize for ModelReference: '<Root>/ActionsModel' incorporates:
+   *  Outport: '<Root>/setPoint'
+   */
+  ActionsDegradedModel_Init(&Board2Degraded_Y.setPoint);
 
   /* SystemInitialize for ModelReference: '<Root>/Board2Health' */
   Board2Health_Init();
