@@ -516,7 +516,7 @@ void StartSupervisor(void *argument) {
 #endif
 
 		/* Abort checks */
-		if(Board1_U.batteryLevel < 23) {
+		if(Board1_U.batteryLevel <= 23) {
 			Board1_U.batteryLevel  = 40;
 		}
 
