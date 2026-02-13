@@ -29,9 +29,6 @@
  *  @{
  */
 
-/** @brief Bitmask for the backward direction combo. */
-#define BACKWARD_COMBO             256u
-
 /** @brief Bitmask for smooth braking mode. */
 #define BRAKING_SMOOTH_MASK         16u
 /** @brief Bitmask for hard braking mode. */
@@ -48,6 +45,10 @@
 #define DISABLE_FRONT_SONAR          8u
 /** @brief Bitmask to disable the right sonar sensor. */
 #define DISABLE_RIGHT_SONAR          2u
+
+
+/** @brief Bitmask to enter degraded mode. */
+#define ENTER_DEGRADED_MODE          1u
 
 /** @} */ /* end of ControllerMasks */
 

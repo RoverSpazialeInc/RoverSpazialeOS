@@ -255,6 +255,9 @@ static inline void actuate_white_leds(void);
 static inline void change_set_point(void);
 static inline void change_regulator(void);
 
+/* PRODUCTION FUNCTIONS */
+static inline void manage_degraded_mode_toggle(uint16_t current_buttons);
+
 /* USER CODE END FunctionPrototypes */
 
 void StartSeggerTask(void *argument);
@@ -517,10 +520,8 @@ void StartSupervisor(void *argument) {
 
 
 
-#if ENTER_DEGRADED_MODE
-		// In this way the boards will dedice together to enter in degraded mode
-		Board1_U.areSensorsValid = 1;
-#endif
+		manage_degraded_mode_toggle(
+				Board1_Y.board1GlobalState.localStateB2.remoteController.buttons);
 
 		/* Abort checks */
 		if(Board1_U.batteryLevel <= 23) {
@@ -865,5 +866,28 @@ static inline void change_regulator(void) {
 		break;
 	}
 }
+
+/* PRODUCTION FUNCTIONS */
+
+static inline void manage_degraded_mode_toggle(uint16_t current_buttons) {
+	#include "controller_masks.h"
+
+	static uint16_t previousButtons = 0;
+	static uint8_t degraded_mode_latched = 0;
+
+	uint16_t risingEdges = (~previousButtons) & current_buttons;
+
+	/* Latch on rising edge: once pressed, stays active forever */
+	if (risingEdges & ENTER_DEGRADED_MODE) {
+		degraded_mode_latched = 1;
+	}
+
+	if (degraded_mode_latched) {
+		Board1_U.areSensorsValid = 1;
+	}
+
+	previousButtons = current_buttons;
+}
+
 /* USER CODE END Application */
 
